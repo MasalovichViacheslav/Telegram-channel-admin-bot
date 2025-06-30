@@ -1,0 +1,124 @@
+# ======================
+# Python: байткод и кэш
+# ======================
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.dylib
+*.dll
+__pycache__/
+.pytest_cache/
+.cache/
+.Python
+pip-wheel-metadata/
+
+# ======================
+# Переменные окружения
+# ======================
+.env
+.env.*
+.envrc
+.venv/
+venv/
+env/
+
+# ======================
+# Установочные артефакты
+# ======================
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ======================
+# Результаты тестов и покрытия
+# ======================
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+nosetests.xml
+test-results/
+
+# ======================
+# Инструменты разработки
+# ======================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+
+# ======================
+# Jupyter / IPython
+# ======================
+.ipynb_checkpoints/
+*.ipynb~
+
+# ======================
+# IDE / Редакторы
+# ======================
+.idea/
+.vscode/
+.sublime-workspace
+.sublime-project
+*.swp
+*.swo
+
+# ======================
+# Docker
+# ======================
+.dockerignore
+.docker_build_cache/
+docker-compose.override.yml
+
+# ======================
+# Документация
+# ======================
+docs/_build/
+site/
+
+# ======================
+# Логи и временные файлы
+# ======================
+*.log
+*.tmp
+*.bak
+*~
+temp/
+tmp/
+
+# ======================
+# Базы данных и медиа
+# ======================
+*.db
+*.sqlite3
+database.sqlite3
+media/
+static/
+staticfiles/
+uploads/
+
+# ======================
+# Node.js (если есть фронтенд)
+# ======================
+node_modules/
+
+# ======================
+# Пользовательские конфиги
+# ======================
+config.ini
+settings_local.py
+
+# ======================
+# Операционные системы
+# ======================
+.DS_Store      # macOS
+Thumbs.db      # Windows
+.directory     # Linux
+
+# Ваш существующий комментарий
+###
+test_folder_to_ignore/
