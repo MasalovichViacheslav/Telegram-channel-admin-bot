@@ -1,3 +1,4 @@
+
 from dotenv import load_dotenv
 import os
 import imaplib
@@ -66,3 +67,4 @@ def fetch_unseen_emails_from_real_python() -> list:
                 print("Logout failure:", logout_error)
 
     return raw_email_messages
+
