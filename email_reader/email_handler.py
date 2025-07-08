@@ -1,4 +1,3 @@
-
 from dotenv import load_dotenv
 import os
 import imaplib
@@ -12,16 +11,21 @@ EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 
-def fetch_unseen_emails_from_real_python() -> list:
+def fetch_unseen_emails() -> list:
     '''
     Connects to the Gmail IMAP server, logs in, selects the inbox,
-    searches for unseen emails from Real Python, and fetches raw email
+    searches for unseen emails from specified resources, and fetches raw email
     messages including headers and body (RFC822 format).
 
     :return: list of raw email messages as bytes
     '''
     imap = None
     raw_email_messages = []
+    resources = (
+        "info@realpython.com",
+        "admin@pycoders.com",
+        "pythonweekly@mail.beehiiv.com"
+    )
 
     try:
         try:
@@ -41,16 +45,18 @@ def fetch_unseen_emails_from_real_python() -> list:
             print("INBOX folder access failure")
             return []
 
-        # search method parameter '*criteria' are search commands based on IMAP protocol standards (RFC 3501)
-        search_status, data = imap.search(None, '(UNSEEN FROM "info@realpython.com")')
-        if search_status != "OK":
-            print("Messages search failure")
-            return []
+        email_ids_list = []
+        for resource in resources:
+            # search method parameter '*criteria' are search commands based on IMAP protocol standards (RFC 3501)
+            search_status, data = imap.search(None, f'(UNSEEN FROM {resource})')
+            if search_status != "OK":
+                print(f"Messages search from {resource} failure")
+            else:
+                email_ids = data[0].split()
+                print(f"{len(email_ids)} unseen email/emails from {resource} found")
+                email_ids_list.extend(email_ids)
 
-        email_ids = data[0].split()
-        print(f"{len(email_ids)} unseen email/emails from Real Python found")
-
-        for email_id in email_ids:
+        for email_id in email_ids_list:
             # RFC822 - email format standard that describes email structure, headers formats and how email is encoded
             fetch_status, raw_email_data = imap.fetch(email_id, "(RFC822)")
             if fetch_status == "OK" and raw_email_data and raw_email_data[0]:
@@ -67,4 +73,3 @@ def fetch_unseen_emails_from_real_python() -> list:
                 print("Logout failure:", logout_error)
 
     return raw_email_messages
-
