@@ -11,13 +11,13 @@ EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 
-def fetch_unseen_emails() -> list:
+def fetch_unseen_emails() -> list[bytes]:
     """
     Connects to the Gmail IMAP server, logs in, selects the inbox,
     searches for unseen emails from specified resources, and fetches raw email
     messages including headers and body (RFC822 format).
 
-    :return: list of raw email messages as bytes
+    :return: list of raw email messages as bytes, or an empty list if not found or any failure
     """
     imap = None
     raw_email_messages = []
