@@ -1,4 +1,3 @@
-
 import email.message
 from email.policy import default
 from email.parser import BytesParser
@@ -16,7 +15,7 @@ def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str]]:
     empty dictionary if not found
     """
 
-    links_to_materials = defaultdict(list)
+    material_sources = defaultdict(list)
 
     for email_for_parsing in emails_for_parsing:
         msg = BytesParser(policy=default).parsebytes(email_for_parsing)
@@ -26,23 +25,23 @@ def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str]]:
             if html_part:
                 pytrick = parse_html_with_real_python_pytrick(html_part)
                 if pytrick:
-                    links_to_materials['pytricks'].append(pytrick)
+                    material_sources['pytricks'].append(pytrick)
 
         elif msg['From'] == 'Real Python <info@realpython.com>':
             html_part = decode_email_html_part(msg)
             if html_part:
                 articles = parse_html_with_real_python_articles(html_part)
                 if articles:
-                    links_to_materials['articles'].extend(articles)
+                    material_sources['articles'].extend(articles)
 
         elif msg['From'] == 'Python Weekly <pythonweekly@mail.beehiiv.com>':
             html_part = decode_email_html_part(msg)
             if html_part:
                 articles = parse_html_with_python_weekly_articles(html_part)
                 if articles:
-                    links_to_materials['articles'].extend(articles)
+                    material_sources['articles'].extend(articles)
 
-    return dict(links_to_materials)
+    return dict(material_sources)
 
 
 def decode_email_html_part(message_object: email.message.EmailMessage) -> str | None:
