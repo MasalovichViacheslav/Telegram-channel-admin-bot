@@ -119,6 +119,7 @@ settings_local.py
 Thumbs.db      # Windows
 .directory     # Linux
 
-# Ваш существующий комментарий
-###
-test_folder_to_ignore/
+# ======================
+# Приватные файлы проекта
+# ======================
+intro phrases.json
