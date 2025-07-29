@@ -1,0 +1,21 @@
+{
+    "usual intro words for articles": [
+        "А вот и новая статья подоспела.",
+        "Ловите статью."
+    ],
+
+    "funny intro words for articles": [
+        "Если ваш код плачет по ночам, возможно, ему просто нужна эта статья...",
+        "Ловите! Горяченькая статья по Python. Прямо из печи, ням-ням."
+    ],
+
+    "hot intro words for articles": [
+        {"_comment":  "value for 'hot intro words for articles' key is an array of objects, each of them (except current comment object) contains two key-value pairs. First one: key - string 'phrase', value - string with phrase itself. Second one: key - string 'keep', value - boolean that means what to do with the phrase after first use: true -  to transfer to value of 'funny intro words for articles' key, false - to delete."},
+        {"phrase": "Поверьте, иногда лучше дома почитать такую вот статью, чем с коллегой сходить на концерт Coldplay.", "keep": true}
+    ],
+
+    "intro words for pytricks": [
+        "Псс-с-с... PyTricks не интересует?",
+        "Отсыплю вам тут еще чутка PyTricks от Дэна Бейдера"
+    ]
+}
