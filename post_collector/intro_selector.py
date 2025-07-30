@@ -1,5 +1,6 @@
 import random
 import json
+import os
 
 
 def get_intro_phrase_from_json(intro_for_article: bool = True) -> str:
@@ -14,7 +15,6 @@ def get_intro_phrase_from_json(intro_for_article: bool = True) -> str:
     false to select an intro phrase for a PyTrick.
     :return: a randomly selected intro phrase, or an empty string in case if JSON decode failure.
     """
-
     try:
         intro_phrase = select_intro_phrase('intro phrases.json', intro_for_article)
     except FileNotFoundError:
@@ -46,8 +46,11 @@ def select_intro_phrase(json_file_name: str, intro_for_article: bool) -> str:
     """
     selected_intro = ''
 
+    module_dir = os.path.dirname(__file__)
+    json_path = os.path.join(module_dir, json_file_name)
+
     try:
-        with open(json_file_name, 'r+', encoding='UTF-8') as f:
+        with open(json_path, 'r+', encoding='UTF-8') as f:
             json_data = json.load(f)
 
             # in case of intro extraction for article
