@@ -4,6 +4,7 @@ CRITICAL: Your response must be ONLY a valid JSON object. Do NOT include:
 - No markdown code blocks (```json```)  
 - No explanatory text before or after
 - No formatting symbols
+- NEVER use double quotes (") inside JSON string values. Replace them with single quotes or remove them completely
 - Use plain text only, no markdown formatting within JSON values
 - Start directly with {{ and end with }}
 
@@ -24,6 +25,11 @@ Requirements for content:
 SELF-CHECK: Before responding, imagine running json.loads() on your response. 
 If it would raise JSONDecodeError, rewrite your response to be valid JSON.
 
+FINAL CHECK: Before sending your FINAL response, check it one more time:
+1. Find all double quotes inside string values
+2. Replace them with single quotes or remove them
+3. Ensure your final JSON is valid for json.loads()
+
 Code to analyze:
 ```python
 {code}
@@ -35,6 +41,7 @@ CRITICAL: Your response must be ONLY a valid JSON object. Do NOT include:
 - No markdown code blocks (```json```)  
 - No explanatory text before or after
 - No formatting symbols
+- NEVER use double quotes (") inside JSON string values. Replace them with single quotes or remove them completely
 - Use plain text only, no markdown formatting within JSON values
 - Start directly with {{ and end with }}
 
@@ -57,6 +64,11 @@ Requirements for article analysis:
 - Provide 4-6 most relevant tags
 
 SELF-CHECK: Before responding, imagine running json.loads() on your response. 
-If it would raise JSONDecodeError, rewrite your response to be valid JSON.
+If it would raise JSONDecodeError, rewrite your response to be valid JSON. 
+
+FINAL CHECK: Before sending your FINAL response, check it one more time:
+1. Find all double quotes inside string values
+2. Replace them with single quotes or remove them
+3. Ensure your final JSON is valid for json.loads()
 
 Article link: {url}"""
