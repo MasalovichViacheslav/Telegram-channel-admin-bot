@@ -1,4 +1,6 @@
 import html
+import re
+
 
 def collect_post_text(post_materials: dict[str, str], intro_phrase: str) -> str|None:
     """
@@ -19,22 +21,22 @@ def collect_post_text(post_materials: dict[str, str], intro_phrase: str) -> str|
 
         safe_article_name = html.escape(post_materials['article name'])
         safe_article_summary = html.escape(post_materials['article summary'])
-        safe_tags = html.escape(format_tags(post_materials['tags']))
-        safe_url = html.escape(post_materials['url'])
-        post_text = (f'<i>🧑🏻️ {intro_phrase}</i>\n\n'
+        camel_case_hashtags = format_tags(post_materials['tags'])
+        url = post_materials['url']
+        post_text = (f'<i>🧑🏻 {intro_phrase}</i>\n\n'
                      f'<b>📚 {safe_article_name}</b>\n\n'
                      f'✍️ {safe_article_summary}\n\n'
-                     f'#️⃣ {safe_tags}\n\n'
-                     f'<a href="{safe_url}">🔗 Читать оригинал статьи →</a>'
+                     f'#️⃣ {camel_case_hashtags}\n\n'
+                     f'<a href="{url}">🔗 Читать оригинал статьи →</a>'
                      )
     elif {'snippet summary', 'snippet', 'tags'}.issubset(post_materials):
         safe_snippet_summary = html.escape(post_materials['snippet summary'])
         safe_snippet = html.escape(post_materials['snippet'])
-        safe_tags = html.escape(format_tags(post_materials['tags']))
-        post_text = (f'<i>🧑🏻️ {intro_phrase}</i>\n\n'
+        camel_case_hashtags = format_tags(post_materials['tags'])
+        post_text = (f'<i>🧑🏻 {intro_phrase}</i>\n\n'
                      f'✍️ {safe_snippet_summary}\n\n'
                      f'<pre>{safe_snippet}</pre>\n\n'
-                     f'#️⃣ {safe_tags}'
+                     f'#️⃣ {camel_case_hashtags}'
                      )
     else:
         return None
@@ -52,5 +54,11 @@ def format_tags(tags_str: str) -> str:
     :return: a string of concatenated Telegram hashtags and separated with whitespace
     """
     split_tags = [tag.strip() for tag in tags_str.split(',')]
-    split_hashtags = [f"#{' '.join([word.capitalize() for word in tag.split()])}" for tag in split_tags]
-    return ''.join(split_hashtags)
+    split_hashtags = []
+
+    for tag in split_tags:
+        words = re.split(r'[^a-zA-Z0-9]+', tag)
+        camel_case_tag = ''.join(word.capitalize() for word in words)
+        split_hashtags.append(f'#{camel_case_tag}')
+
+    return ' '.join(split_hashtags)
