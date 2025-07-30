@@ -21,20 +21,20 @@ def collect_post_text(post_materials: dict[str, str], intro_phrase: str) -> str|
         safe_article_summary = html.escape(post_materials['article summary'])
         safe_tags = html.escape(format_tags(post_materials['tags']))
         safe_url = html.escape(post_materials['url'])
-        post_text = (f'<b>🤖 {intro_phrase}</b>\n\n'
+        post_text = (f'<i>🧑🏻️ {intro_phrase}</i>\n\n'
                      f'<b>📚 {safe_article_name}</b>\n\n'
-                     f'<i>✍️ {safe_article_summary}</i>\n\n'
-                     f'{safe_tags}\n\n'
+                     f'✍️ {safe_article_summary}\n\n'
+                     f'#️⃣ {safe_tags}\n\n'
                      f'<a href="{safe_url}">🔗 Читать оригинал статьи →</a>'
                      )
     elif {'snippet summary', 'snippet', 'tags'}.issubset(post_materials):
         safe_snippet_summary = html.escape(post_materials['snippet summary'])
         safe_snippet = html.escape(post_materials['snippet'])
         safe_tags = html.escape(format_tags(post_materials['tags']))
-        post_text = (f'<b>🤖 {intro_phrase}</b>\n\n'
-                     f'<i>✍️ {safe_snippet_summary}</i>\n\n'
+        post_text = (f'<i>🧑🏻️ {intro_phrase}</i>\n\n'
+                     f'✍️ {safe_snippet_summary}\n\n'
                      f'<pre>{safe_snippet}</pre>\n\n'
-                     f'{safe_tags}'
+                     f'#️⃣ {safe_tags}'
                      )
     else:
         return None
