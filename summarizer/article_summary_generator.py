@@ -57,7 +57,7 @@ def summarize_material(materials: dict[str, list[str]]) -> dict[str, list[dict[s
                         except KeyError as e:
                             print(f'No key in the model response as required by prompt: {e}')
                     except JSONDecodeError as e:
-                        print(f'The model response has not JSON format as required by prompt: {e}')
+                        print(f'The model response has not JSON format as required by prompt: {e}\n{response.text}')
 
                 elif material_type == 'pytricks':
                     response = client.models.generate_content(
@@ -79,7 +79,7 @@ def summarize_material(materials: dict[str, list[str]]) -> dict[str, list[dict[s
                         except KeyError as e:
                             print(f'No key in the model response as required by prompt: {e}')
                     except JSONDecodeError as e:
-                        print(f'The model response has not JSON format as required by prompt: {e}')
+                        print(f'The model response has not JSON format as required by prompt: {e}\n{response.text}')
     except errors.APIError as e:
         print(f'Gemini API error: {e.details}')
 
