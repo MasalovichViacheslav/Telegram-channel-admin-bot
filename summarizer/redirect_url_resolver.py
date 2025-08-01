@@ -2,19 +2,21 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 import time
 
 
-def resolve_urls(urls: list[str], timeout=10000) -> tuple[list[str], list[str]]:
+def resolve_urls(article_urls: dict[str, str], timeout=10000) -> tuple[dict[str, str], dict[str, str]]:
     """
-    Resolves final URLs for a list of input URLs, handling JavaScript redirects.
+    Resolves final URLs for URLs in dict of 'article title-url' pairs, handling JavaScript redirects.
 
     Launches headless browser with single context for all URLs, for each URL loads page
     waiting for DOM ready, waits 1.5s for JS redirects, if URL unchanged, attempts
-    networkidle wait as fallback, returns resolved and unresolved URLs separately
+    networkidle wait as fallback, returns dict of 'article title-resolved URL' pairs and dict of
+    'article title-unresolved URL' pairs separately
 
-    :param urls: list of URLs to resolve
+    :param article_urls: dict of 'article title-URL' pairs {'article title', 'article url'} for URL resolving
     :param timeout: page navigation timeout in milliseconds (default: 10000)
-    :return: tuple of resolved and unresolved urls lists. On critical errors returns ([], urls)
+    :return: tuple of dictionaries with resolved and unresolved urls lists.
+    On critical errors returns ({}, article_urls)
     """
-    resolved, unresolved = [], []
+    dict_with_resolved_urls, dict_with_unresolved_urls = {}, {}
 
     try:
         with sync_playwright() as p:
@@ -26,7 +28,7 @@ def resolve_urls(urls: list[str], timeout=10000) -> tuple[list[str], list[str]]:
             # Block static resources for faster loading
             context.route("**/*.{png,jpg,jpeg,gif,svg,ico,css,woff,woff2}", lambda route: route.abort())
 
-            for url in urls:
+            for title, url in article_urls.items():
                 try:
                     page = context.new_page()
                     page.set_default_timeout(timeout)
@@ -45,46 +47,47 @@ def resolve_urls(urls: list[str], timeout=10000) -> tuple[list[str], list[str]]:
                             final_url = page.url
 
                     page.close()
-                    resolved.append(final_url)
+                    dict_with_resolved_urls[title] = final_url
 
                 except Exception as e:
-                    unresolved.append(url)
+                    dict_with_unresolved_urls[title] = url
 
             context.close()
             browser.close()
 
     except Exception as e:
         print(f"Critical error: {str(e)}")
-        return [], urls
+        return {}, article_urls
 
-    return resolved, unresolved
+    return dict_with_resolved_urls, dict_with_unresolved_urls
 
 
-def retry_resolve_urls(material_sources: dict[str, list[str]]) -> dict[str, list[str]]:
+def retry_resolve_urls(material_sources: dict[str, list[str]|dict[str, str]]) -> dict[str, list[str]|dict[str, str]]:
     """
-    Retries URL resolution up to 3 times to maximize successful redirects resolution.
+    Repeatedly attempts to resolve final URLs in the 'articles' section of material_sources.
 
     Wraps the `resolve_urls` function in a retry loop. Unresolved URLs are retried up to
     three times with a short pause between attempts. Successfully resolved URLs from
     each attempt are accumulated. Unresolved URLs after the final attempt are discarded.
 
-    :param material_sources: dictionary with article URLs, typically returned by the `email_parser` function.
+    :param material_sources: dictionary of extracted materials, typically from `email_parser()`.
+    Should contain a key 'articles' with {title: original_url}.
     :return: The same dictionary, but with 'articles' key updated to contain only successfully resolved URLs.
     """
     if 'articles' in material_sources:
-        unresolved_urls = material_sources['articles']
-        final_resolved_urls_list = []
+        dict_with_unresolved_urls = material_sources['articles']
+        final_dict_with_resolved_urls = {}
 
         for attempt in range(3):
-            if not unresolved_urls:
+            if not dict_with_unresolved_urls:
                 break
 
-            resolved_urls, unresolved_urls = resolve_urls(unresolved_urls)
-            final_resolved_urls_list.extend(resolved_urls)
+            dict_with_resolved_urls, dict_with_unresolved_urls = resolve_urls(dict_with_unresolved_urls)
+            final_dict_with_resolved_urls.update(dict_with_resolved_urls)
 
             if attempt != 2:
                 time.sleep(3)
 
-        material_sources['articles'] = final_resolved_urls_list
+        material_sources['articles'] = final_dict_with_resolved_urls
 
     return material_sources
