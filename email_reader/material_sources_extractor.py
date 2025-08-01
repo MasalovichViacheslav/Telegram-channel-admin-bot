@@ -5,14 +5,19 @@ from collections import defaultdict
 from bs4 import BeautifulSoup
 
 
-def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str]]:
+def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str | list[str]]]:
     """
     Receives list of raw email messages as bytes, parses them according to specified criteria,
-    and extracts either links to materials (articles) or materials themselves.
+    and extracts materials from different sources.
+
+    Processes emails from:
+    - Real Python PyTricks: extracts code snippets as strings
+    - Real Python articles: extracts [title, link] pairs for tutorials
+    - Python Weekly: extracts [title, link] pairs for articles
 
     :param emails_for_parsing: list of raw email messages as bytes
-    :return dict: dictionary of links to materials (articles) or materials themselves, or an
-    empty dictionary if not found
+    :return: dictionary with keys 'pytricks' (list of strings) and 'articles'
+             (list of [title, link] pairs), or empty dictionary if nothing found
     """
 
     material_sources = defaultdict(list)
@@ -69,18 +74,20 @@ def decode_email_html_part(message_object: email.message.EmailMessage) -> str | 
     return None
 
 
-def parse_html_with_real_python_articles(html: str) -> list[str]:
+def parse_html_with_real_python_articles(html: str) -> list[list[str]]:
     """
-    Extracts article links from a Real Python email's HTML part.
+    Extracts article titles and links from a Real Python email's HTML part.
 
     Finds all sections labeled as "New Tutorial" or "Updated Tutorial" and extracts
-    the link to the tutorial by locating the nearest <h2> and following <a> tag.
+    both the title and link to the tutorial by locating the nearest <h2> (for title)
+    and following <a> tag (for link).
 
     :param html: the decoded HTML part of the email.
-    :return: list of article links, or an empty list if not found.
+    :return: list of [title, link] pairs, or an empty list if not found.
+             Each inner list contains: [article_title, article_url]
     """
     soup = BeautifulSoup(html, 'html.parser')
-    links = []
+    articles = []
 
     article_headings = soup.find_all('h3', string=['New Tutorial', 'Updated Tutorial'])
 
@@ -88,12 +95,13 @@ def parse_html_with_real_python_articles(html: str) -> list[str]:
         title_heading = article_heading.find_next('h2')
 
         if title_heading:
+            article_title = title_heading.get_text(strip=True)
             link = title_heading.find_next('a')
 
-            if link and link.get('href'):
-                links.append(link['href'])
+            if link and link.get('href') and article_title:
+                articles.append([article_title, link['href']])
 
-    return links
+    return articles
 
 
 def parse_html_with_real_python_pytrick(html: str) -> str:
@@ -115,20 +123,21 @@ def parse_html_with_real_python_pytrick(html: str) -> str:
     return pytrick_content
 
 
-def parse_html_with_python_weekly_articles(html: str) -> list[str]:
+def parse_html_with_python_weekly_articles(html: str) -> list[list[str]]:
     """
-    Extracts links to articles from a Python Weekly email's HTML part.
+    Extracts article titles and links from a Python Weekly email's HTML part.
 
     Finds the start of the "Articles, Tutorials and Talks" section by locating
     a <td> tag with the corresponding id. Then iterates over following <tr> tags
-    on the same level to collect article links from <a> tags, until it reaches
-    the start of the next section, identified by another known id prefix.
+    on the same level to collect article titles and links from <a> tags, until
+    it reaches the start of the next section, identified by another known id prefix.
 
     :param html: the decoded HTML part of the email
-    :return: a list of article links, or an empty list if not found
+    :return: list of [title, link] pairs, or an empty list if not found.
+             Each inner list contains: [article_title, article_url]
     """
     soup = BeautifulSoup(html, "html.parser")
-    links = []
+    articles = []
 
     start_td = soup.find("td", id="articles-tutorials-and-talks")
     if not start_td:
@@ -146,6 +155,10 @@ def parse_html_with_python_weekly_articles(html: str) -> list[str]:
 
         a_tag = tr.find("a", href=True)
         if a_tag:
-            links.append(a_tag["href"])
+            article_title = a_tag.get_text(strip=True)
+            article_link = a_tag["href"]
 
-    return links
+            if article_title and article_link:
+                articles.append([article_title, article_link])
+
+    return articles
