@@ -1,26 +1,27 @@
 import email.message
 from email.policy import default
 from email.parser import BytesParser
-from collections import defaultdict
 from bs4 import BeautifulSoup
 
 
-def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str | list[str]]]:
+def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str] | dict[str, str]]:
     """
     Receives list of raw email messages as bytes, parses them according to specified criteria,
     and extracts materials from different sources.
 
     Processes emails from:
-    - Real Python PyTricks: extracts code snippets as strings
-    - Real Python articles: extracts [title, link] pairs for tutorials
-    - Python Weekly: extracts [title, link] pairs for articles
+    - Real Python PyTricks: extracts code snippets as strings list
+    - Real Python articles: extracts 'article title-link to article' pairs for tutorials as dictionary
+    - Python Weekly: extracts 'article title-link to article' pairs for articles as dictionary
 
     :param emails_for_parsing: list of raw email messages as bytes
-    :return: dictionary with keys 'pytricks' (list of strings) and 'articles'
-             (list of [title, link] pairs), or empty dictionary if nothing found
+    :return: a dictionary with two keys:
+         - 'pytricks': list of code snippet strings
+         - 'articles': dictionary of {'title': 'url'} pairs
+         Returns an empty list or dict if nothing found for that section.
     """
 
-    material_sources = defaultdict(list)
+    material_sources = {'pytricks': [], 'articles': {}}
 
     for email_for_parsing in emails_for_parsing:
         msg = BytesParser(policy=default).parsebytes(email_for_parsing)
@@ -37,16 +38,16 @@ def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str | list[s
             if html_part:
                 articles = parse_html_with_real_python_articles(html_part)
                 if articles:
-                    material_sources['articles'].extend(articles)
+                    material_sources['articles'].update(articles)
 
         elif msg['From'] == 'Python Weekly <pythonweekly@mail.beehiiv.com>':
             html_part = decode_email_html_part(msg)
             if html_part:
                 articles = parse_html_with_python_weekly_articles(html_part)
                 if articles:
-                    material_sources['articles'].extend(articles)
+                    material_sources['articles'].update(articles)
 
-    return dict(material_sources)
+    return material_sources
 
 
 def decode_email_html_part(message_object: email.message.EmailMessage) -> str | None:
@@ -74,7 +75,7 @@ def decode_email_html_part(message_object: email.message.EmailMessage) -> str | 
     return None
 
 
-def parse_html_with_real_python_articles(html: str) -> list[list[str]]:
+def parse_html_with_real_python_articles(html: str) -> dict[str, str]:
     """
     Extracts article titles and links from a Real Python email's HTML part.
 
@@ -83,11 +84,10 @@ def parse_html_with_real_python_articles(html: str) -> list[list[str]]:
     and following <a> tag (for link).
 
     :param html: the decoded HTML part of the email.
-    :return: list of [title, link] pairs, or an empty list if not found.
-             Each inner list contains: [article_title, article_url]
+    :return: dict of {'article title': 'link to article'} pairs, or an empty dict if not found.
     """
     soup = BeautifulSoup(html, 'html.parser')
-    articles = []
+    articles = {}
 
     article_headings = soup.find_all('h3', string=['New Tutorial', 'Updated Tutorial'])
 
@@ -99,7 +99,7 @@ def parse_html_with_real_python_articles(html: str) -> list[list[str]]:
             link = title_heading.find_next('a')
 
             if link and link.get('href') and article_title:
-                articles.append([article_title, link['href']])
+                articles[article_title] = link['href']
 
     return articles
 
@@ -123,7 +123,7 @@ def parse_html_with_real_python_pytrick(html: str) -> str:
     return pytrick_content
 
 
-def parse_html_with_python_weekly_articles(html: str) -> list[list[str]]:
+def parse_html_with_python_weekly_articles(html: str) -> dict[str, str]:
     """
     Extracts article titles and links from a Python Weekly email's HTML part.
 
@@ -133,15 +133,14 @@ def parse_html_with_python_weekly_articles(html: str) -> list[list[str]]:
     it reaches the start of the next section, identified by another known id prefix.
 
     :param html: the decoded HTML part of the email
-    :return: list of [title, link] pairs, or an empty list if not found.
-             Each inner list contains: [article_title, article_url]
+    :return: dict of {'article title': 'link to article'} pairs, or an empty dict if not found.
     """
     soup = BeautifulSoup(html, "html.parser")
-    articles = []
+    articles = {}
 
     start_td = soup.find("td", id="articles-tutorials-and-talks")
     if not start_td:
-        return []
+        return {}
 
     tr = start_td.find_parent("tr")
     while tr:
@@ -159,6 +158,6 @@ def parse_html_with_python_weekly_articles(html: str) -> list[list[str]]:
             article_link = a_tag["href"]
 
             if article_title and article_link:
-                articles.append([article_title, article_link])
+                articles[article_title] = article_link
 
     return articles
