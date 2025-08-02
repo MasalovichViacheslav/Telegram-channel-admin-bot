@@ -42,27 +42,27 @@ def summarize_material(materials: dict[str, list[str]|dict[str, str]]) -> dict[s
                 if request_number % 10 == 1 and request_number != 1:
                     time.sleep(60)
 
-                    response = client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=ARTICLE_ANALYSIS_PROMPT.format(url=link_to_article)
-                    )
-                    # checking if the model response has JSON format
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=ARTICLE_ANALYSIS_PROMPT.format(url=link_to_article)
+                )
+                # checking if the model response has JSON format
+                try:
+                    decoded_response = loads(response.text.strip())
+                    # checking if there are all keys in the model response as required by prompt
                     try:
-                        decoded_response = loads(response.text.strip())
-                        # checking if there are all keys in the model response as required by prompt
-                        try:
-                            # checking if all required content is provided by the model
-                            if all((
-                                    decoded_response['article summary'],
-                                    decoded_response['tags']
-                            )):
-                                decoded_response['article_title'] = article_title
-                                decoded_response['url'] = link_to_article
-                                materials_with_summaries['articles'].append(decoded_response)
-                        except KeyError as e:
-                            print(f'No key in the model response as required by prompt: {e}')
-                    except JSONDecodeError as e:
-                        print(f'The model response has not JSON format as required by prompt: {e}\n{response.text}')
+                        # checking if all required content is provided by the model
+                        if all((
+                                decoded_response['article summary'],
+                                decoded_response['tags']
+                        )):
+                            decoded_response['article title'] = article_title
+                            decoded_response['url'] = link_to_article
+                            materials_with_summaries['articles'].append(decoded_response)
+                    except KeyError as e:
+                        print(f'No key in the model response as required by prompt: {e}')
+                except JSONDecodeError as e:
+                    print(f'The model response has not JSON format as required by prompt: {e}\n{response.text}')
 
         if materials['pytricks']:
             pytricks = materials['pytricks']
@@ -73,26 +73,26 @@ def summarize_material(materials: dict[str, list[str]|dict[str, str]]) -> dict[s
                 if request_number % 10 == 1 and request_number != 1:
                     time.sleep(60)
 
-                    response = client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=SNIPPET_ANALYSIS_PROMPT.format(code=snippet)
-                    )
-                    # checking if the model response has JSON format
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=SNIPPET_ANALYSIS_PROMPT.format(code=snippet)
+                )
+                # checking if the model response has JSON format
+                try:
+                    decoded_response = loads(response.text.strip())
+                    # checking if there are all keys in the model response as required by prompt
                     try:
-                        decoded_response = loads(response.text.strip())
-                        # checking if there are all keys in the model response as required by prompt
-                        try:
-                            # checking if all required content is provided by the model
-                            if all((
-                                    decoded_response['snippet summary'],
-                                    decoded_response['tags']
-                            )):
-                                decoded_response['snippet'] = snippet
-                                materials_with_summaries['pytricks'].append(decoded_response)
-                        except KeyError as e:
-                            print(f'No key in the model response as required by prompt: {e}')
-                    except JSONDecodeError as e:
-                        print(f'The model response has not JSON format as required by prompt: {e}\n{response.text}')
+                        # checking if all required content is provided by the model
+                        if all((
+                                decoded_response['snippet summary'],
+                                decoded_response['tags']
+                        )):
+                            decoded_response['snippet'] = snippet
+                            materials_with_summaries['pytricks'].append(decoded_response)
+                    except KeyError as e:
+                        print(f'No key in the model response as required by prompt: {e}')
+                except JSONDecodeError as e:
+                    print(f'The model response has not JSON format as required by prompt: {e}\n{response.text}')
     except errors.APIError as e:
         print(f'Gemini API error: {e.details}')
 
