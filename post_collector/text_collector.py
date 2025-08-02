@@ -17,17 +17,15 @@ def collect_post_text(post_materials: dict[str, str], intro_phrase: str) -> str|
     :return: the final post text formatted with HTML tags for Telegram.
     Returns None if the structure doesn't match expected keys.
     """
-    if {'article name', 'article summary', 'tags', 'url'}.issubset(post_materials):
-
-        safe_article_name = html.escape(post_materials['article name'])
+    if {'article title', 'article summary', 'tags', 'url'}.issubset(post_materials):
+        safe_article_title = html.escape(post_materials['article title'])
         safe_article_summary = html.escape(post_materials['article summary'])
         camel_case_hashtags = format_tags(post_materials['tags'])
         url = post_materials['url']
         post_text = (f'<i>🧑🏻 {intro_phrase}</i>\n\n'
-                     f'<b>📚 {safe_article_name}</b>\n\n'
+                     f'<a href="{url}"><b>📚🔗 {safe_article_title}</b></a>\n\n'
                      f'✍️ {safe_article_summary}\n\n'
                      f'#️⃣ {camel_case_hashtags}\n\n'
-                     f'<a href="{url}">🔗 Читать оригинал статьи →</a>'
                      )
     elif {'snippet summary', 'snippet', 'tags'}.issubset(post_materials):
         safe_snippet_summary = html.escape(post_materials['snippet summary'])
