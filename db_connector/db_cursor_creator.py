@@ -1,0 +1,61 @@
+from dotenv import load_dotenv
+import os
+from contextlib import contextmanager
+from typing import Optional, Generator
+import psycopg2
+from psycopg2 import OperationalError
+from psycopg2.extras import RealDictCursor
+import time
+
+
+load_dotenv()
+
+DB_NAME=os.getenv('DB_NAME')
+DB_USER=os.getenv('DB_USER')
+DB_PASSWORD=os.getenv('DB_PASSWORD')
+DB_HOST=os.getenv('DB_HOST')
+DB_PORT=os.getenv('DB_PORT')
+DB_PORT = int(DB_PORT) if DB_PORT else None
+
+
+@contextmanager
+def get_db_cursor(retries: int = 3, delay: float = 1.0) -> Generator[Optional[psycopg2.extensions.cursor], None, None]:
+    """
+    Creates context manager for establishing a database connection and providing a cursor.
+
+    :param retries: Number of connection attempts before giving up.
+    :param delay: Initial delay between attempts in seconds (is doubled after each failure).
+    :return: context manager for establishing a database connection and providing a cursor,
+    or None in case of DB connection failure.
+    """
+    conn = None
+
+    for attempt in range(1, retries + 1):
+        try:
+            # connection to DB through IPv4 networks
+            conn = psycopg2.connect(
+                dbname=DB_NAME,
+                user=DB_USER,
+                password=DB_PASSWORD,
+                host=DB_HOST,
+                port=DB_PORT,
+                sslmode='require',
+                cursor_factory=RealDictCursor
+            )
+            if conn:
+                break
+        except OperationalError as e:
+            print(f'DB connection attempt {attempt} failure: {e}')
+            if attempt < retries:
+                time.sleep(delay)
+                delay *= 2
+
+    if conn:
+        with conn:
+            try:
+                with conn.cursor() as cur:
+                    yield cur
+            except psycopg2.Error as e:
+                print(f'Database error: {e}')
+    else:
+        yield None
