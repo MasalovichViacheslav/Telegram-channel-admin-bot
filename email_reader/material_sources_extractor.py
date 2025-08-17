@@ -40,7 +40,7 @@ def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str] | dict[
                 if articles:
                     material_sources['articles'].update(articles)
 
-        elif msg['From'] == 'Python Weekly <pythonweekly@mail.beehiiv.com>':
+        elif msg['From'] in ('Python Weekly <pythonweekly@mail.beehiiv.com>', 'Python Weekly <rahul@pythonweekly.com>'):
             html_part = decode_email_html_part(msg)
             if html_part:
                 articles = parse_html_with_python_weekly_articles(html_part)
