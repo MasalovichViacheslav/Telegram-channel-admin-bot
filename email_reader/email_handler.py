@@ -23,7 +23,7 @@ def fetch_unseen_emails() -> list[bytes]:
     raw_email_messages = []
     resources = (
         "info@realpython.com",
-        "admin@pycoders.com",
+        "rahul@pythonweekly.com",
         "pythonweekly@mail.beehiiv.com"
     )
 
