@@ -12,7 +12,7 @@ def get_intro_phrase_from_json(intro_for_article: bool = True) -> str:
     `select_intro_phrase()`.
 
     :param intro_for_article: has boolean value, true (used by default) to select an intro phrase for an article,
-    false to select an intro phrase for a PyTrick.
+        false to select an intro phrase for a PyTrick.
     :return: a randomly selected intro phrase, or an empty string in case if JSON decode failure.
     """
     try:
@@ -41,7 +41,7 @@ def select_intro_phrase(json_file_name: str, intro_for_article: bool) -> str:
 
     :param json_file_name: the name of the JSON file containing intro phrases.
     :param intro_for_article: boolean flag to select intro phrase either for article or for PyTrick.
-    True to select an article intro. False to select a PyTrick intro.
+        True to select an article intro. False to select a PyTrick intro.
     :return: a randomly selected intro phrase, or an empty string in case if JSON decode failure.
     """
     selected_intro = ''

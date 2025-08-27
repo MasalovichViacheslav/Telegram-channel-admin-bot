@@ -10,12 +10,9 @@ def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str] | dict[
     and extracts materials from different sources.
 
     Processes emails from:
-
-    - Real Python PyTricks: extracts code snippets as strings list
-
-    - Real Python articles: extracts 'article title-link to article' pairs for tutorials as dictionary
-
-    - Python Weekly: extracts 'article title-link to article' pairs for articles as dictionary
+        - Real Python PyTricks: extracts code snippets as strings list
+        - Real Python articles: extracts 'article title-link to article' pairs for tutorials as dictionary
+        - Python Weekly: extracts 'article title-link to article' pairs for articles as dictionary
 
     :param emails_for_parsing: list of raw email messages as bytes
     :return: a dictionary with two keys:

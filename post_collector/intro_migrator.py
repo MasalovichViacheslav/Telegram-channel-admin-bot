@@ -12,7 +12,7 @@ def fetch_intros_from_json_options() -> dict[str, list[str | dict[str, str]]] | 
     This allows using different datasets for local development vs deployment.
 
     :return: Dictionary containing intro phrases categorized by type and purpose,
-    or None if both files are missing or contain invalid JSON.
+        or None if both files are missing or contain invalid JSON.
     """
     try:
         intro_phrases = fetch_intros('intro phrases.json')
@@ -28,7 +28,7 @@ def fetch_intros(json_file_name: str) -> dict[str, list[str | dict[str, str]]] |
 
     :param json_file_name: Name of the JSON file to load intro phrases from.
     :return: Dictionary containing intro phrases loaded from JSON file,
-    or None if file doesn't exist or contains invalid JSON.
+        or None if file doesn't exist or contains invalid JSON.
     """
     all_intro_phases = None
 
@@ -49,11 +49,10 @@ def create_intros_table() -> None:
     Creates and populates the intro_phrases table in database.
 
     This function is designed for one-time database initialization. It:
-    - Creates the intro_phrases table with appropriate constraints
-    - Loads intro phrases from JSON files using fallback mechanism
-    - Populates the table with phrases categorized by type ('usual', 'funny', 'hot')
-      and purpose ('article', 'pytricks')
-    - Handles special structure for 'hot' phrases with 'keep' flag for future movement
+        - Creates the intro_phrases table with appropriate constraints
+        - Loads intro phrases from JSON files using fallback mechanism
+        - Populates the table with phrases categorized by type ('usual', 'funny', 'hot') and purpose ('article', 'pytricks')
+        - Handles special structure for 'hot' phrases with 'keep' flag for future movement
 
     :return: None
     """

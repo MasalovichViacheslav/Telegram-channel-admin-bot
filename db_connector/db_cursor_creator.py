@@ -26,7 +26,7 @@ def get_db_cursor(retries: int = 3, delay: float = 1.0) -> Generator[Optional[ps
     :param retries: Number of connection attempts before giving up.
     :param delay: Initial delay between attempts in seconds (is doubled after each failure).
     :return: context manager for establishing a database connection and providing a cursor,
-    or None in case of DB connection failure.
+        or None in case of DB connection failure.
     """
     conn = None
 

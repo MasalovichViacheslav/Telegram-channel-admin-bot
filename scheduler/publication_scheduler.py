@@ -14,10 +14,11 @@ def calculate_publication_schedule(posts_qty: int) -> list[datetime]:
     of posts evenly within the daily publication window.
 
     The function respects the following constraints:
-    - The daily publication window is defined by the global variables
-      PUBLICATION_WINDOW_START and PUBLICATION_WINDOW_END in the timezone TZ.
-    - Night periods between publication windows are taken into account.
-    - Posts are distributed evenly over the course of the week.
+        - The daily publication window is defined by the global variables PUBLICATION_WINDOW_START and PUBLICATION_WINDOW_END in the timezone TZ.
+
+        - Night periods between publication windows are taken into account.
+
+        - Posts are distributed evenly over the course of the week.
 
     :param posts_qty: The number of posts to schedule for the week. Must be >= 1.
     :return: A list of timezone-aware datetime objects (TZ) representing future publication times.
@@ -57,7 +58,7 @@ def upload_schedule_to_db(schedule: list[datetime]) -> None:
     inserted as rows in the `publication_time` column.
 
     :param schedule: A list of timezone-aware datetime.datetime objects
-    representing planned publication times.
+        representing planned publication times.
     :return: None
     """
     with get_db_cursor() as cur:

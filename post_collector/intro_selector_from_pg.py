@@ -7,9 +7,11 @@ def get_article_intro_phrase() -> str | None:
     Selects and returns an intro phrase for article posts with priority-based logic.
 
     Uses a hierarchical selection system:
-    1. First priority: 'hot' phrases (topical/trending content) - these are either
-    moved to 'funny' category or deleted after use based on 'move_to' flag
-    2. Fallback: weighted random selection from 'usual' (70%) and 'funny' (30%) phrases.
+
+    - First priority: 'hot' phrases (topical/trending content) - these are either moved to 'funny' category or deleted after use based on 'move_to' flag
+
+    - Fallback: weighted random selection from 'usual' (70%) and 'funny' (30%) phrases.
+
 
     :return: Selected intro phrase text, or None if DB connection fails.
     """

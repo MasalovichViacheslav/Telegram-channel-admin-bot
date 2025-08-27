@@ -7,15 +7,18 @@ def collect_post_text(post_materials: dict[str, str], intro_phrase: str) -> str|
     Constructs a Telegram post from given material data.
 
     Input may represent either:
+
     - an article, with keys: 'article name', 'article summary', 'tags', 'url'
+
     - or a snippet, with keys: 'snippet summary', 'snippet', 'tags'
+
 
     All text fields are HTML-escaped to ensure safe rendering in Telegram.
 
     :param post_materials: a dictionary containing article or snippet data.
     :param intro_phrase: an introductory phrase for the post.
     :return: the final post text formatted with HTML tags for Telegram.
-    Returns None if the structure doesn't match expected keys.
+        Returns None if the structure doesn't match expected keys.
     """
     if {'article title', 'article summary', 'tags', 'url'}.issubset(post_materials):
         safe_article_title = html.escape(post_materials['article title'])

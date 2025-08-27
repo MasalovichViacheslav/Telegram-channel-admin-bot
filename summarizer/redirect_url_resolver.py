@@ -9,12 +9,12 @@ def resolve_urls(article_urls: dict[str, str], timeout=10000) -> tuple[dict[str,
     Launches headless browser with single context for all URLs, for each URL loads page
     waiting for DOM ready, waits 1.5s for JS redirects, if URL unchanged, attempts
     networkidle wait as fallback, returns dict of 'article title-resolved URL' pairs and dict of
-    'article title-unresolved URL' pairs separately
+    'article title-unresolved URL' pairs separately.
 
     :param article_urls: dict of 'article title-URL' pairs {'article title', 'article url'} for URL resolving
     :param timeout: page navigation timeout in milliseconds (default: 10000)
     :return: tuple of dictionaries with resolved and unresolved urls lists.
-    On critical errors returns ({}, article_urls)
+        On critical errors returns ({}, article_urls)
     """
     dict_with_resolved_urls, dict_with_unresolved_urls = {}, {}
 
@@ -71,7 +71,7 @@ def retry_resolve_urls(material_sources: dict[str, list[str]|dict[str, str]]) ->
     each attempt are accumulated. Unresolved URLs after the final attempt are discarded.
 
     :param material_sources: dictionary of extracted materials, typically from `email_parser()`.
-    Should contain a key 'articles' with {title: original_url}.
+        Should contain a key 'articles' with {title: original_url}.
     :return: The same dictionary, but with 'articles' key updated to contain only successfully resolved URLs.
     """
     if 'articles' in material_sources:
