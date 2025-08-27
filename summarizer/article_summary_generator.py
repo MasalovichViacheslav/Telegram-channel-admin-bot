@@ -21,10 +21,10 @@ def summarize_material(materials: dict[str, list[str]|dict[str, str]]) -> dict[s
     keys are kept and returned.
 
     :param materials: a dictionary with keys like 'articles' or 'pytricks', and values —
-    dictionary of 'article title-urls' pairs or an empty dictionary and list of snippets or
-    an empty list respectively
-    :return: a dictionary with the same keys ('articles' or 'pytricks'),
-    where each value is a list of parsed and validated JSON responses from Gemini
+        dictionary of 'article title-urls' pairs or an empty dictionary and list of snippets
+        or an empty list respectively
+    :return: a dictionary with the same keys ('articles' or 'pytricks'), where each value is
+        a list of parsed and validated JSON responses from Gemini
     """
     materials_with_summaries = defaultdict(list)
 
