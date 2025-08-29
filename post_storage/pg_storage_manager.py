@@ -33,7 +33,7 @@ def add_posts_to_next_batch(new_posts_list: list[str]) -> None:
                 )
 
 
-def rotate_batches() -> int | None:
+def move_posts_to_current_batch() -> int | None:
     """
     Moves all posts from `batch_type='next'` to `batch_type='current'`.
 
