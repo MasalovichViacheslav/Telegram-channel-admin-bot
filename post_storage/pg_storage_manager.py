@@ -63,15 +63,24 @@ def move_posts_to_current_batch() -> int | None:
 
 def get_post_from_current_batch() -> str | None:
     """
-    Retrieves a random post from the current batch (`batch_type='current'`)
-    and marks it as published.
+    Atomically retrieves a random post from the current batch (`batch_type='current'`),
+    marks it as published, and removes one corresponding entry from the publication schedule.
 
-    When published:
-        - `batch_type` is set to `'published'`
-        - `publication_time` is set to the current timestamp
+    Behavior:
+      - A post is selected randomly from the 'current' batch.
+      - The selected post is marked as published (`batch_type='published'`) and its
+        `publication_time` is set to the current timestamp.
+      - One record from the schedule table (the earliest with `publication_time <= NOW()`)
+        is deleted to keep the schedule in sync with available posts.
 
-    :return: The text of the post, or None if no posts are available.
+    Notes:
+      - The selected post is not tied to any specific scheduled time.
+      - All operations are executed in a single transaction for atomicity.
+      - If no post is available, returns None.
+
+    :return: The text of the randomly selected post, or None if no posts are available.
     """
+    post_text = None
 
     with get_db_cursor() as cur:
         if cur:
@@ -99,5 +108,17 @@ def get_post_from_current_batch() -> str | None:
                 """,
                 ('published', id)
             )
+            cur.execute(
+                """
+                DELETE FROM schedule
+                WHERE id = (
+                SELECT id
+                FROM schedule
+                WHERE publication_time <= NOW()
+                ORDER BY publication_time ASC
+                LIMIT 1
+                )
+                """
+            )
 
-            return post_text
+    return post_text
