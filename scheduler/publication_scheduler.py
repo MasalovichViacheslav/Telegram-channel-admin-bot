@@ -77,30 +77,3 @@ def upload_schedule_to_db(schedule: list[datetime]) -> None:
                 """,
                 [(dt,) for dt in schedule]
             )
-
-
-def is_time_to_publish() -> bool:
-    """
-    Finds and removes the earliest past datetime from the schedule table.
-
-    :return: True if past scheduled datetime is found, or False otherwise.
-    """
-    with get_db_cursor() as cur:
-        if cur:
-            cur.execute(
-                """
-                DELETE FROM schedule
-                WHERE id = (
-                SELECT id
-                FROM schedule
-                WHERE publication_time <= NOW()
-                ORDER BY publication_time ASC
-                LIMIT 1
-                )
-                RETURNING publication_time
-                """
-            )
-            query_result = cur.fetchone()
-            if query_result:
-                return True
-    return False
