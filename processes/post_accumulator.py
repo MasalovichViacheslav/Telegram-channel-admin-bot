@@ -7,6 +7,7 @@ from summarizer.article_summary_generator import summarize_material
 from post_collector.text_collector import collect_post_text
 from post_collector.intro_selector_from_pg import get_article_intro_phrase, get_pytrick_intro_phrase
 from post_storage.pg_storage_manager import add_posts_to_next_batch
+from utils.logging_config import log_json
 
 TZ = ZoneInfo('Europe/Minsk')
 MORNING_TIME_TO_CHECK_EMAIL = time(10, 45, 0)
@@ -25,6 +26,8 @@ def is_time_to_add_post_texts() -> bool:
 
     :return: True if current time is within either processing window, False otherwise
     """
+    log_json('ADDING NEW POSTS PROCESS', 'info',
+             'Checking whether it\'s time to add new posts or not')
     current_time = datetime.now(tz=TZ)
 
     morning_time = datetime.combine(current_time.date(), MORNING_TIME_TO_CHECK_EMAIL, tzinfo=TZ)
@@ -34,8 +37,10 @@ def is_time_to_add_post_texts() -> bool:
 
     if (morning_time < current_time < morning_time + delta or
             evening_time < current_time < evening_time + delta):
+        log_json('ADDING NEW POSTS PROCESS', 'info', 'It\'s time to add new posts')
         return True
     else:
+        log_json('ADDING NEW POSTS PROCESS', 'info', 'Time to add new posts has not come yet')
         return False
 
 
@@ -57,20 +62,30 @@ def add_post_texts() -> None:
 
     :return: None
     """
+    log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is started')
+
     raw_unseen_messages = fetch_unseen_emails()
     if not raw_unseen_messages:
+        log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
+                 reason='No unseen messages from the specified resources are found')
         return
 
     extracted_materials = email_parser(raw_unseen_messages)
     if not extracted_materials:
+        log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
+                 reason='None of provided raw email messages contains snippet or url to articles')
         return
 
     extracted_materials_with_resolved_urls = retry_resolve_urls(extracted_materials)
     if not extracted_materials_with_resolved_urls:
+        log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
+                 reason='Failed to resolve any final urls for provided urls')
         return
 
     post_elements = summarize_material(extracted_materials_with_resolved_urls)
     if not post_elements:
+        log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
+                 reason='LLM didn\'t generate summary and tags for any of provided urls')
         return
 
     post_texts = []
@@ -87,5 +102,5 @@ def add_post_texts() -> None:
                 post_texts.append(post_text)
 
     add_posts_to_next_batch(post_texts)
-
-add_post_texts()
+    log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
+             reason='Successful completion')
