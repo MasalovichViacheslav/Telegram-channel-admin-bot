@@ -2,6 +2,10 @@ import email.message
 from email.policy import default
 from email.parser import BytesParser
 from bs4 import BeautifulSoup
+from utils.logging_config import log_json
+
+
+LOGGER = 'FETCHING UNSEEN EMAILS SUBPROCESS'
 
 
 def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str] | dict[str, str]]:
@@ -20,6 +24,7 @@ def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str] | dict[
          - 'articles': dictionary of {'title': 'url'} pairs
          Returns an empty list or dict if nothing found for that section.
     """
+    log_json(LOGGER, 'info', 'The subprocess is started')
 
     material_sources = {'pytricks': [], 'articles': {}}
 
@@ -47,6 +52,10 @@ def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str] | dict[
                 if articles:
                     material_sources['articles'].update(articles)
 
+    log_json(LOGGER, 'info', 'The subprocess is ended successfully',
+             result={'Extracted snippets q-ty': f'{len(material_sources['pytricks'])}',
+                     'Extracted article data q-ty': f'{len(material_sources['articles'])}'})
+
     return material_sources
 
 
@@ -70,7 +79,8 @@ def decode_email_html_part(message_object: email.message.EmailMessage) -> str | 
                     decoded_part = payload.decode(charset, errors='ignore')
                     return decoded_part
             except Exception as e:
-                print(f"Decoding failure: {e}")
+                log_json(LOGGER, 'error', 'Email html part decoding failure', error=f'{e}',
+                         sample=f'{payload}')
 
     return None
 
