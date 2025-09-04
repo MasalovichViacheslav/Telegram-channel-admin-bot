@@ -58,21 +58,22 @@ def log_json(logger_name: str, level: str, message: str, **extra_fields) -> None
     logger_method(json.dumps(log_entry, ensure_ascii=False))
 
 
-def silence_python_telegram_bot_logs() -> None:
+def silence_third_party_logs() -> None:
     """
-    Suppress WARNING/INFO/DEBUG logs from python-telegram-bot and its dependencies
-    (telegram, telegram.ext, httpx, httpcore, anyio), leaving only ERROR+.
+    Suppress WARNING/INFO/DEBUG logs from third-party libraries and its dependencies,
+    leaving only ERROR+.
 
     :return: None
     """
-    loggers = [
-        "telegram",
-        "telegram.ext",
-        "httpx",
-        "httpcore",
-        "anyio",
+    noisy_loggers = [
+        "telegram", "telegram.ext", "telegram.request",
+        "httpx", "httpcore",
+        "asyncio",
+        "urllib3",
+        "google", "google_genai",
     ]
-    for name in loggers:
+
+    for name in noisy_loggers:
         logger = logging.getLogger(name)
         logger.setLevel(logging.ERROR)
         logger.propagate = False

@@ -2,8 +2,7 @@ from processes.post_accumulator import is_time_to_add_post_texts, add_post_texts
 from processes.post_publication_scheduler import (is_time_to_schedule_next_week_publications,
                                                   schedule_next_week_publications)
 from processes.post_publisher import is_time_to_publish_post, publish_post
-from utils.logging_config import setup_logging, log_json, silence_python_telegram_bot_logs
-import logging
+from utils.logging_config import setup_logging, log_json, silence_third_party_logs
 
 
 def run_post_accumulating() -> None:
@@ -29,7 +28,7 @@ def main() -> None:
       3. Publishes post if publication time has come
     """
     setup_logging()
-    silence_python_telegram_bot_logs()
+    silence_third_party_logs()
 
     log_json('APP', 'info', 'APP has started work')
     run_post_accumulating()
