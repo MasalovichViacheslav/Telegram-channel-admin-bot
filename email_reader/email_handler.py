@@ -5,6 +5,7 @@ import socket
 import ssl
 from utils.logging_config import log_json
 
+
 # Load variables from .env file
 load_dotenv()
 
@@ -12,7 +13,6 @@ EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 LOGGER = 'FETCHING UNSEEN EMAILS SUBPROCESS'
-
 
 def fetch_unseen_emails() -> list[bytes]:
     """
@@ -36,7 +36,8 @@ def fetch_unseen_emails() -> list[bytes]:
         try:
             imap = imaplib.IMAP4_SSL("imap.gmail.com")
         except (socket.gaierror, socket.timeout, ssl.SSLError, imaplib.IMAP4.error) as e:
-            log_json(LOGGER, 'error', 'IMAP server connection failure, the subprocess is failed', error=f'{e}')
+            log_json(LOGGER, 'error', 'IMAP server connection failure, the subprocess is failed',
+                     error=f'{e}')
             return []
 
         try:
@@ -79,6 +80,6 @@ def fetch_unseen_emails() -> list[bytes]:
                 log_json(LOGGER, 'error', 'Mailbox logout failure', error=f'{logout_error}')
 
     log_json(LOGGER, 'info', 'The subprocess is ended successfully',
-             result={'Fetched raw messages q-ty': f'{len(raw_email_messages)}'})
+             result={'Fetched raw messages q-ty': len(raw_email_messages)})
 
     return raw_email_messages
