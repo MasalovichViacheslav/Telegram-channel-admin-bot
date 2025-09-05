@@ -5,8 +5,7 @@ from bs4 import BeautifulSoup
 from utils.logging_config import log_json
 
 
-LOGGER = 'FETCHING UNSEEN EMAILS SUBPROCESS'
-
+LOGGER = 'EMAIL DATA EXTRACTION SUBPROCESS'
 
 def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str] | dict[str, str]]:
     """
@@ -53,8 +52,8 @@ def email_parser(emails_for_parsing: list[bytes]) -> dict[str, list[str] | dict[
                     material_sources['articles'].update(articles)
 
     log_json(LOGGER, 'info', 'The subprocess is ended successfully',
-             result={'Extracted snippets q-ty': f'{len(material_sources['pytricks'])}',
-                     'Extracted article data q-ty': f'{len(material_sources['articles'])}'})
+             result={'Extracted snippets q-ty': len(material_sources['pytricks']),
+                     'Extracted article data q-ty': len(material_sources['articles'])})
 
     return material_sources
 
