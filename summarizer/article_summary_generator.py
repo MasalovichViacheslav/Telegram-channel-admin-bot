@@ -6,11 +6,14 @@ from collections import defaultdict
 import time
 from json import loads, JSONDecodeError
 from summarizer.prompts import SNIPPET_ANALYSIS_PROMPT, ARTICLE_ANALYSIS_PROMPT
+from utils.logging_config import log_json
 
 
 # Load variable from .env file
 load_dotenv()
 gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+LOGGER = 'SUMMARIZING POST MATERIALS SUBPROCESS '
 
 def summarize_material(materials: dict[str, list[str]|dict[str, str]]) -> dict[str, list[dict[str, str]]]:
     """
@@ -26,6 +29,8 @@ def summarize_material(materials: dict[str, list[str]|dict[str, str]]) -> dict[s
     :return: a dictionary with the same keys ('articles' or 'pytricks'), where each value is
         a list of parsed and validated JSON responses from Gemini
     """
+    log_json(LOGGER, 'info', 'The subprocess is started')
+
     materials_with_summaries = defaultdict(list)
 
     try:
@@ -60,9 +65,11 @@ def summarize_material(materials: dict[str, list[str]|dict[str, str]]) -> dict[s
                             decoded_response['url'] = link_to_article
                             materials_with_summaries['articles'].append(decoded_response)
                     except KeyError as e:
-                        print(f'No key in the model response as required by prompt: {e}')
+                        log_json(LOGGER, 'error', 'No key in LLM response as required by prompt',
+                                 error=f'{e}')
                 except JSONDecodeError as e:
-                    print(f'The model response has not JSON format as required by prompt: {e}\n{response.text}')
+                    log_json(LOGGER, 'error', 'LLM response has not JSON format as required by prompt',
+                             error=f'{e}', response=f'{response.text}')
 
         if materials['pytricks']:
             pytricks = materials['pytricks']
@@ -90,10 +97,20 @@ def summarize_material(materials: dict[str, list[str]|dict[str, str]]) -> dict[s
                             decoded_response['snippet'] = snippet
                             materials_with_summaries['pytricks'].append(decoded_response)
                     except KeyError as e:
-                        print(f'No key in the model response as required by prompt: {e}')
+                        log_json(LOGGER, 'error', 'No key in LLM response as required by prompt',
+                                 error=f'{e}')
                 except JSONDecodeError as e:
-                    print(f'The model response has not JSON format as required by prompt: {e}\n{response.text}')
+                    log_json(LOGGER, 'error', 'LLM response has not JSON format as required by prompt',
+                             error=f'{e}', response=f'{response.text}')
     except errors.APIError as e:
-        print(f'Gemini API error: {e.details}')
+        log_json(LOGGER, 'critical', 'Gemini API error', error=f'{e}', details=f'{e.details}')
+
+    log_json(LOGGER, 'info', 'The subprocess is ended successfully',
+             result={'Q-ty of summarized articles': len(materials_with_summaries['articles']),
+                     'Q-ty of not summarized articles': len(materials['articles']) -
+                                                             len(materials_with_summaries['articles']),
+                     'Q-ty of summarized pytricks': len(materials_with_summaries['pytricks']),
+                     'Q-ty of not summarized pytricks': len(materials['pytricks']) -
+                                                             len(materials_with_summaries['pytricks'])})
 
     return dict(materials_with_summaries)
