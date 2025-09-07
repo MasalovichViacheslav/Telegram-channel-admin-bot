@@ -1,5 +1,9 @@
 from db_connector.db_cursor_creator import get_db_cursor
 import random
+from utils.logging_config import log_json
+
+
+LOGGER = 'POST INTRO SELECTION SUBPROCESS'
 
 
 def get_article_intro_phrase() -> str | None:
@@ -7,14 +11,14 @@ def get_article_intro_phrase() -> str | None:
     Selects and returns an intro phrase for article posts with priority-based logic.
 
     Uses a hierarchical selection system:
-
-    - First priority: 'hot' phrases (topical/trending content) - these are either moved to 'funny' category or deleted after use based on 'move_to' flag
-
-    - Fallback: weighted random selection from 'usual' (70%) and 'funny' (30%) phrases.
-
+      - First priority: 'hot' phrases (topical/trending content) - these are either moved to 'funny' category or
+        deleted after use based on 'move_to' flag
+      - Fallback: weighted random selection from 'usual' (70%) and 'funny' (30%) phrases.
 
     :return: Selected intro phrase text, or None if DB connection fails.
     """
+    log_json(LOGGER, 'info', 'The subprocess is started', intro_type='for article')
+
     with get_db_cursor() as cur:
         if cur:
             cur.execute(
@@ -69,7 +73,12 @@ def get_article_intro_phrase() -> str | None:
                 random.choices((intro_phrases['usual'], intro_phrases['funny']), (0.7, 0.3))[0]
             )
 
+            log_json(LOGGER, 'info', 'The subprocess is ended successfully', intro_type='for article')
             return intro_phrase
+
+        else:
+            log_json(LOGGER, 'warning', 'The subprocess is failed', intro_type='for article',
+                     reason='DB connection/cursor creation failure')
 
 
 def get_pytrick_intro_phrase() -> str | None:
@@ -81,6 +90,8 @@ def get_pytrick_intro_phrase() -> str | None:
 
     :return: Selected intro phrase text, or None if DB connection fails.
     """
+    log_json(LOGGER, 'info', 'The subprocess is started', intro_type='for pytrick')
+
     with get_db_cursor() as cur:
         if cur:
             cur.execute(
@@ -92,5 +103,9 @@ def get_pytrick_intro_phrase() -> str | None:
             query_result = cur.fetchall()
             intro_phrase = random.choice(query_result)['intro_text']
 
+            log_json(LOGGER, 'info', 'The subprocess is ended successfully', intro_type='for pytrick')
             return intro_phrase
 
+        else:
+            log_json(LOGGER, 'warning', 'The subprocess is failed', intro_type='for pytrick',
+                     reason='DB connection/cursor creation failure')
