@@ -2,9 +2,7 @@ import html
 import re
 
 
-LOGGER = "POST "
-
-def collect_post_text(post_materials: dict[str, str], intro_phrase: str) -> str | None:
+def compile_post_text(post_materials: dict[str, str], intro_phrase: str) -> str | None:
     """
     Constructs a Telegram post from given material data.
 
