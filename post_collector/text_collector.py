@@ -2,16 +2,13 @@ import html
 import re
 
 
-def collect_post_text(post_materials: dict[str, str], intro_phrase: str) -> str|None:
+def collect_post_text(post_materials: dict[str, str], intro_phrase: str) -> str | None:
     """
     Constructs a Telegram post from given material data.
 
     Input may represent either:
-
-    - an article, with keys: 'article name', 'article summary', 'tags', 'url'
-
-    - or a snippet, with keys: 'snippet summary', 'snippet', 'tags'
-
+      - an article, with keys: 'article name', 'article summary', 'tags', 'url'
+      - or a snippet, with keys: 'snippet summary', 'snippet', 'tags'
 
     All text fields are HTML-escaped to ensure safe rendering in Telegram.
 
@@ -59,7 +56,7 @@ def format_tags(tags_str: str) -> str:
 
     for tag in split_tags:
         words = re.split(r'[^a-zA-Z0-9]+', tag)
-        camel_case_tag = ''.join(word.capitalize() for word in words)
+        camel_case_tag = ''.join(word[0].upper() + word[1:] for word in words)
         split_hashtags.append(f'#{camel_case_tag}')
 
     return ' '.join(split_hashtags)
