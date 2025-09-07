@@ -6,6 +6,7 @@ import psycopg2
 from psycopg2 import OperationalError
 from psycopg2.extras import RealDictCursor
 import time
+from utils.logging_config import log_json
 
 
 load_dotenv()
@@ -18,6 +19,8 @@ DB_PORT=os.getenv('DB_PORT')
 DB_PORT = int(DB_PORT) if DB_PORT else None
 
 
+LOGGER = "DB CONNECTION AND CURSOR CREATION SUBPROCESS"
+
 @contextmanager
 def get_db_cursor(retries: int = 3, delay: float = 1.0) -> Generator[Optional[psycopg2.extensions.cursor], None, None]:
     """
@@ -28,6 +31,8 @@ def get_db_cursor(retries: int = 3, delay: float = 1.0) -> Generator[Optional[ps
     :return: context manager for establishing a database connection and providing a cursor,
         or None in case of DB connection failure.
     """
+    log_json(LOGGER, 'info', 'The subprocess is started')
+
     conn = None
 
     for attempt in range(1, retries + 1):
@@ -45,7 +50,7 @@ def get_db_cursor(retries: int = 3, delay: float = 1.0) -> Generator[Optional[ps
             if conn:
                 break
         except OperationalError as e:
-            print(f'DB connection attempt {attempt} failure: {e}')
+            log_json(LOGGER, 'error', f'Database connection attempt No. {attempt} failure', error=f'{e}')
             if attempt < retries:
                 time.sleep(delay)
                 delay *= 2
@@ -54,8 +59,11 @@ def get_db_cursor(retries: int = 3, delay: float = 1.0) -> Generator[Optional[ps
         with conn:
             try:
                 with conn.cursor() as cur:
+                    log_json(LOGGER, 'info', 'The subprocess is ended successfully')
                     yield cur
             except psycopg2.Error as e:
-                print(f'Database error: {e}')
+                log_json(LOGGER, 'critical', 'Database error, the subprocess is failed',
+                         error=f'{e}')
     else:
+        log_json(LOGGER, 'critical', 'Failed to connect to database, the subprocess is failed')
         yield None
