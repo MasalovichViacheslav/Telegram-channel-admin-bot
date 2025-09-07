@@ -1,6 +1,9 @@
 import html
 import re
+from utils.logging_config import log_json
 
+
+LOGGER = "POST TEXT COMPILATION SUBPROCESS"
 
 def compile_post_text(post_materials: dict[str, str], intro_phrase: str) -> str | None:
     """
@@ -17,6 +20,8 @@ def compile_post_text(post_materials: dict[str, str], intro_phrase: str) -> str 
     :return: the final post text formatted with HTML tags for Telegram.
         Returns None if the structure doesn't match expected keys.
     """
+    log_json(LOGGER, 'info', 'The subprocess is started')
+
     if {'article title', 'article summary', 'tags', 'url'}.issubset(post_materials):
         safe_article_title = html.escape(post_materials['article title'])
         safe_article_summary = html.escape(post_materials['article summary'])
@@ -37,8 +42,11 @@ def compile_post_text(post_materials: dict[str, str], intro_phrase: str) -> str 
                      f'#️⃣ {camel_case_hashtags}'
                      )
     else:
+        log_json(LOGGER, 'warning', 'The subprocess is ended without post text compilation',
+                 post_materials=post_materials)
         return None
 
+    log_json(LOGGER, 'info', 'The subprocess is ended successfully')
     return post_text
 
 
