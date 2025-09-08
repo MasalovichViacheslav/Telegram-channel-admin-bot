@@ -2,9 +2,9 @@ from db_connector.db_cursor_creator import get_db_cursor
 from utils.logging_config import log_json
 
 
-LOGGER_A = "ADDING POSTS TO DB SUBPROCESS"
-LOGGER_M = "MOVING POSTS TO NEXT BATCH SUBPROCESS"
-LOGGER_G = "GETTING A POST FROM DB SUBPROCESS"
+LOGGER_A = "ADDING POST TEXTS TO DB SUBPROCESS"
+LOGGER_M = "MOVING POST TEXTS TO \'CURRENT\' SUBPROCESS"
+LOGGER_G = "GETTING A POST TEXT FROM DB SUBPROCESS"
 
 
 def add_posts_to_next_batch(new_posts_list: list[str]) -> None:
@@ -71,8 +71,10 @@ def move_posts_to_current_batch() -> int | None:
                 """,
                 ('current',)
             )
-            log_json(LOGGER_M, 'info', 'The subprocess is ended successfully')
-            return cur.fetchone()['count']
+            post_qty = cur.fetchone()['count']
+            log_json(LOGGER_M, 'info', 'The subprocess is ended successfully',
+                     result={'Q-ty of post texts moved from \'next\' batch to \'current\'': post_qty})
+            return post_qty
         else:
             log_json(LOGGER_M, 'info', 'The subprocess is failed',
                      reason='DB connection/cursor creation failure')
