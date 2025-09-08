@@ -4,8 +4,8 @@ from email_reader.email_handler import fetch_unseen_emails
 from email_reader.material_sources_extractor import email_parser
 from summarizer.redirect_url_resolver import retry_resolve_urls
 from summarizer.article_summary_generator import summarize_material
-from post_collector.text_collector import collect_post_text
-from post_collector.intro_selector_from_pg import get_article_intro_phrase, get_pytrick_intro_phrase
+from post_compiler.text_compiler import compile_post_text
+from post_compiler.intro_selector_from_pg import get_article_intro_phrase, get_pytrick_intro_phrase
 from post_storage.pg_storage_manager import add_posts_to_next_batch
 from utils.logging_config import log_json
 
@@ -13,6 +13,7 @@ TZ = ZoneInfo('Europe/Minsk')
 MORNING_TIME_TO_CHECK_EMAIL = time(10, 45, 0)
 EVENING_TIME_TO_CHECK_EMAIL = time(19, 45, 0)
 
+LOGGER = 'POST TEXTS ACCUMULATION PROCESS'
 
 def is_time_to_add_post_texts() -> bool:
     """
@@ -26,8 +27,8 @@ def is_time_to_add_post_texts() -> bool:
 
     :return: True if current time is within either processing window, False otherwise
     """
-    log_json('ADDING NEW POSTS PROCESS', 'info',
-             'Checking whether it\'s time to add new posts or not')
+    log_json(LOGGER, 'info', 'Checking whether it\'s time to add new posts or not')
+
     current_time = datetime.now(tz=TZ)
 
     morning_time = datetime.combine(current_time.date(), MORNING_TIME_TO_CHECK_EMAIL, tzinfo=TZ)
@@ -37,10 +38,10 @@ def is_time_to_add_post_texts() -> bool:
 
     if (morning_time < current_time < morning_time + delta or
             evening_time < current_time < evening_time + delta):
-        log_json('ADDING NEW POSTS PROCESS', 'info', 'It\'s time to add new posts')
+        log_json(LOGGER, 'info', 'It\'s time to add new posts')
         return True
     else:
-        log_json('ADDING NEW POSTS PROCESS', 'info', 'Time to add new posts has not come yet')
+        log_json(LOGGER, 'info', 'Time to add new posts has not come yet')
         return False
 
 
@@ -62,30 +63,30 @@ def add_post_texts() -> None:
 
     :return: None
     """
-    log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is started')
+    log_json(LOGGER, 'info', 'The process is started')
 
     raw_unseen_messages = fetch_unseen_emails()
     if not raw_unseen_messages:
-        log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
-                 reason='No unseen messages from the specified resources are found')
+        log_json(LOGGER, 'info', 'No raw messages from required resources are received, '
+                                 'the process is terminated')
         return
 
     extracted_materials = email_parser(raw_unseen_messages)
     if not extracted_materials:
-        log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
-                 reason='None of provided raw email messages contains snippet or url to articles')
+        log_json(LOGGER, 'info', 'No required data is extracted from the messages for further processing,'
+                                 ' the process is terminated')
         return
 
     extracted_materials_with_resolved_urls = retry_resolve_urls(extracted_materials)
     if not extracted_materials_with_resolved_urls:
-        log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
-                 reason='Failed to resolve any final urls for provided urls')
+        log_json(LOGGER, 'info', 'No URLs are resolved for further processing by LLM, '
+                                 'the process is terminated')
         return
 
     post_elements = summarize_material(extracted_materials_with_resolved_urls)
     if not post_elements:
-        log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
-                 reason='LLM didn\'t generate summary and tags for any of provided urls')
+        log_json(LOGGER, 'info', 'LLM didn\'t generate summary and tags for none of the provided URLs, '
+                                 'the process is terminated')
         return
 
     post_texts = []
@@ -93,14 +94,14 @@ def add_post_texts() -> None:
         if material_type == 'articles':
             for text_elements in material_type_samples:
                 intro_phrase = get_article_intro_phrase()
-                post_text = collect_post_text(text_elements, intro_phrase if intro_phrase else '')
+                post_text = compile_post_text(text_elements, intro_phrase if intro_phrase else '')
                 post_texts.append(post_text)
         else:
             for text_elements in material_type_samples:
                 intro_phrase = get_pytrick_intro_phrase()
-                post_text = collect_post_text(text_elements, intro_phrase if intro_phrase else '')
+                post_text = compile_post_text(text_elements, intro_phrase if intro_phrase else '')
                 post_texts.append(post_text)
 
     add_posts_to_next_batch(post_texts)
-    log_json('ADDING NEW POSTS PROCESS', 'info', 'Adding new posts process is ended',
-             reason='Successful completion')
+
+    log_json(LOGGER, 'info', 'The process is ended successfully')
