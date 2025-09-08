@@ -67,26 +67,26 @@ def add_post_texts() -> None:
 
     raw_unseen_messages = fetch_unseen_emails()
     if not raw_unseen_messages:
-        log_json(LOGGER, 'info', 'No raw messages from required resources are received, '
-                                 'the process is terminated')
+        log_json(LOGGER, 'info', 'The process is terminated',
+                 reason='No raw messages from required resources are received')
         return
 
     extracted_materials = email_parser(raw_unseen_messages)
     if not extracted_materials:
-        log_json(LOGGER, 'info', 'No required data is extracted from the messages for further processing,'
-                                 ' the process is terminated')
+        log_json(LOGGER, 'info', 'The process is terminated',
+                 reason='No required data is extracted from the messages for further processing')
         return
 
     extracted_materials_with_resolved_urls = retry_resolve_urls(extracted_materials)
     if not extracted_materials_with_resolved_urls:
-        log_json(LOGGER, 'info', 'No URLs are resolved for further processing by LLM, '
-                                 'the process is terminated')
+        log_json(LOGGER, 'info', 'The process is terminated',
+                 reason='No URLs are resolved for further processing by LLM')
         return
 
     post_elements = summarize_material(extracted_materials_with_resolved_urls)
     if not post_elements:
-        log_json(LOGGER, 'info', 'LLM didn\'t generate summary and tags for none of the provided URLs, '
-                                 'the process is terminated')
+        log_json(LOGGER, 'info', 'The process is terminated',
+                 reason='LLM didn\'t generate summary and tags for none of the provided URLs')
         return
 
     post_texts = []
@@ -104,4 +104,4 @@ def add_post_texts() -> None:
 
     add_posts_to_next_batch(post_texts)
 
-    log_json(LOGGER, 'info', 'The process is ended successfully')
+    log_json(LOGGER, 'info', 'The process is ended')
