@@ -1,4 +1,10 @@
 from db_connector.db_cursor_creator import get_db_cursor
+from utils.logging_config import log_json
+
+
+LOGGER_A = "ADDING POSTS TO DB SUBPROCESS"
+LOGGER_M = "MOVING POSTS TO NEXT BATCH SUBPROCESS"
+LOGGER_G = "GETTING A POST FROM DB SUBPROCESS"
 
 
 def add_posts_to_next_batch(new_posts_list: list[str]) -> None:
@@ -10,6 +16,8 @@ def add_posts_to_next_batch(new_posts_list: list[str]) -> None:
     :param new_posts_list: A list of post texts to be inserted.
     :return: None
     """
+    log_json(LOGGER_A, 'info', 'The subprocess is started')
+
     with get_db_cursor() as cur:
         if cur:
             cur.execute(
@@ -31,6 +39,11 @@ def add_posts_to_next_batch(new_posts_list: list[str]) -> None:
                     """,
                     values_to_insert
                 )
+                log_json(LOGGER_A, 'info', 'The subprocess is ended successfully',
+                         result={'Q-ty of added post texts': len(values_to_insert)})
+        else:
+            log_json(LOGGER_A, 'info', 'The subprocess is failed',
+                     reason='DB connection/cursor creation failure')
 
 
 def move_posts_to_current_batch() -> int | None:
@@ -39,6 +52,7 @@ def move_posts_to_current_batch() -> int | None:
 
     :return: The number of posts in the current batch, or None if the DB connection fails.
     """
+    log_json(LOGGER_M, 'info', 'The subprocess is started')
 
     with get_db_cursor() as cur:
         if cur:
@@ -57,8 +71,12 @@ def move_posts_to_current_batch() -> int | None:
                 """,
                 ('current',)
             )
-
+            log_json(LOGGER_M, 'info', 'The subprocess is ended successfully')
             return cur.fetchone()['count']
+        else:
+            log_json(LOGGER_M, 'info', 'The subprocess is failed',
+                     reason='DB connection/cursor creation failure')
+
 
 
 def get_post_from_current_batch() -> str | None:
@@ -80,6 +98,7 @@ def get_post_from_current_batch() -> str | None:
 
     :return: The text of the randomly selected post, or None if no posts are available.
     """
+    log_json(LOGGER_G, 'info', 'The subprocess is started')
     post_text = None
 
     with get_db_cursor() as cur:
@@ -120,5 +139,9 @@ def get_post_from_current_batch() -> str | None:
                 )
                 """
             )
+            log_json(LOGGER_G, 'info', 'The subprocess is ended successfully')
 
+        else:
+            log_json(LOGGER_G, 'info', 'The subprocess is failed',
+                     reason='DB connection/cursor creation failure')
     return post_text
