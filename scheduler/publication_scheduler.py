@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta, date, time, tzinfo
 from zoneinfo import ZoneInfo
 from db_connector.db_cursor_creator import get_db_cursor
+from utils.logging_config import log_json
+
 
 TZ = ZoneInfo('Europe/Minsk')
 
@@ -8,21 +10,24 @@ PUBLICATION_WINDOW_START = time(7, 0, 0)
 PUBLICATION_WINDOW_END = time(22, 0 ,0)
 NIGHT_WINDOW_HOURS = (24 - PUBLICATION_WINDOW_END.hour + PUBLICATION_WINDOW_START.hour)
 
+LOGGER_C = 'SCHEDULE CALCULATION SUBPROCESS'
+LOGGER_U = 'SCHEDULE UPLOADING TO DB SUBPROCESS'
+
 def calculate_publication_schedule(posts_qty: int) -> list[datetime]:
     """
     Calculates a weekly publication schedule, distributing the specified number
     of posts evenly within the daily publication window.
 
     The function respects the following constraints:
-        - The daily publication window is defined by the global variables PUBLICATION_WINDOW_START and PUBLICATION_WINDOW_END in the timezone TZ.
-
+        - The daily publication window is defined by the global variables PUBLICATION_WINDOW_START and
+          PUBLICATION_WINDOW_END in the timezone TZ.
         - Night periods between publication windows are taken into account.
-
         - Posts are distributed evenly over the course of the week.
 
     :param posts_qty: The number of posts to schedule for the week. Must be >= 1.
     :return: A list of timezone-aware datetime objects (TZ) representing future publication times.
     """
+    log_json(LOGGER_C, 'info', 'The subprocess is started')
 
     total_secs_per_week = 60 * 60 * (PUBLICATION_WINDOW_END.hour - PUBLICATION_WINDOW_START.hour) * 7
     delta_in_secs = int(total_secs_per_week / (posts_qty + 1))
@@ -45,6 +50,9 @@ def calculate_publication_schedule(posts_qty: int) -> list[datetime]:
 
         start_datetime = publication_time
 
+    log_json(LOGGER_C, 'info', 'The subprocess is ended successfully',
+             result={'Q-ty of datetimes in created schedule': len(schedule)})
+
     return schedule
 
 
@@ -61,6 +69,8 @@ def upload_schedule_to_db(schedule: list[datetime]) -> None:
         representing planned publication times.
     :return: None
     """
+    log_json(LOGGER_U, 'info', 'The subprocess is started')
+
     with get_db_cursor() as cur:
         if cur:
             cur.execute(
@@ -77,3 +87,8 @@ def upload_schedule_to_db(schedule: list[datetime]) -> None:
                 """,
                 [(dt,) for dt in schedule]
             )
+            log_json(LOGGER_U, 'info', 'The subprocess is ended successfully',
+                     result={'Q-ty of records added to \'schedule\' table': len(schedule)})
+        else:
+            log_json(LOGGER_U, 'critical', 'The subprocess is failed',
+                     reason='DB connection/cursor creation failure')
