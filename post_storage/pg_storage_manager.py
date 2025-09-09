@@ -117,6 +117,8 @@ def get_post_from_current_batch() -> str | None:
 
             query_result = cur.fetchone()
             if not query_result:
+                log_json(LOGGER_G, 'critical', 'The subprocess is terminated',
+                         reason='Unexpectedly no posts in \'current\' batch')
                 return None
             post_text = query_result['text']
             id = query_result['id']
