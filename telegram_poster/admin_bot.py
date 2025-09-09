@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 from telegram.error import TelegramError
 from telegram import Bot
+from utils.logging_config import log_json
 
 
 # Load variable from .env file
@@ -11,6 +12,7 @@ TELEGRAM_CHANNEL_ID=os.getenv('TELEGRAM_CHANNEL_ID')
 
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
+LOGGER = 'MESSAGE SENDING SUBPROCESS'
 
 async def post_to_telegram_channel(post_text: str) -> None:
     """
@@ -19,7 +21,11 @@ async def post_to_telegram_channel(post_text: str) -> None:
     :param post_text: the message text to be sent.
     :return: None
     """
+    log_json(LOGGER, 'info', 'The subprocess is started')
+
     try:
         await bot.send_message(chat_id=TELEGRAM_CHANNEL_ID, text=post_text, parse_mode='HTML')
+        log_json(LOGGER, 'info', 'The subprocess is ended successfully')
     except TelegramError as e:
-        print(f"Message sending failure: {e}")
+        log_json(LOGGER, 'error', 'The subprocess is failed', reason='Message sending failure',
+                 error=f'{e}')
