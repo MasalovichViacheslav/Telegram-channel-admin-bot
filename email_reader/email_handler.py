@@ -36,19 +36,20 @@ def fetch_unseen_emails() -> list[bytes]:
         try:
             imap = imaplib.IMAP4_SSL("imap.gmail.com")
         except (socket.gaierror, socket.timeout, ssl.SSLError, imaplib.IMAP4.error) as e:
-            log_json(LOGGER, 'error', 'IMAP server connection failure, the subprocess is failed',
+            log_json(LOGGER, 'error', 'The subprocess is failed', reason='IMAP server connection failure',
                      error=f'{e}')
             return []
 
         try:
             imap.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
         except imaplib.IMAP4.error as e:
-            log_json(LOGGER, 'error', 'Mailbox login failure, the subprocess is failed', error=f'{e}')
+            log_json(LOGGER, 'error', 'The subprocess is failed', reason='Mailbox login failure',
+                     error=f'{e}')
             return []
 
         select_status, _ = imap.select("INBOX")
         if select_status != "OK":
-            log_json(LOGGER, 'info', 'INBOX folder access failure, the subprocess is terminated')
+            log_json(LOGGER, 'info', 'The subprocess is terminated', reason='INBOX folder access failure')
             return []
 
         email_ids_list = []
