@@ -1,18 +1,12 @@
-from dotenv import load_dotenv
-import os
 import imaplib
 import socket
 import ssl
 from utils.logging_config import log_json
+from config import EMAIL_ADDRESS, EMAIL_PASSWORD
 
-
-# Load variables from .env file
-load_dotenv()
-
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 LOGGER = 'FETCHING UNSEEN EMAILS SUBPROCESS'
+
 
 def fetch_unseen_emails() -> list[bytes]:
     """

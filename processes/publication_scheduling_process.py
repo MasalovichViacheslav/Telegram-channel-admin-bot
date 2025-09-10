@@ -1,13 +1,10 @@
 from datetime import datetime
-from zoneinfo import ZoneInfo
+from config import TZ, WEEKDAY_TO_CREATE_NEW_SCHEDULE
 from db_connector.db_cursor_creator import get_db_cursor
 from post_storage.pg_storage_manager import move_posts_to_current_batch
 from scheduler.publication_scheduler import calculate_publication_schedule, upload_schedule_to_db
 from utils.logging_config import log_json
 
-
-TZ = ZoneInfo('Europe/Minsk')
-WEEKDAY_TO_CREATE_NEW_SCHEDULE = 5
 
 LOGGER = 'POST PUBLICATIONS SCHEDULING PROCESS'
 
@@ -16,11 +13,10 @@ def is_time_to_schedule_next_week_publications()-> bool | None:
     Determines if it's time to create a publication schedule for the upcoming week.
 
     Checks two conditions:
-        1. Current day is equal to weekday defined by the global variable WEEKDAY_TO_CREATE_NEW_SCHEDULE
+        1. Current day is equal to weekday defined by the constant set in 'config.py' module
         2. No existing schedule entries in the database
 
-    This ensures weekly schedule creation happens only once per week on Fridays
-    when the schedule table is empty.
+    This ensures weekly schedule creation happens only once per week when the schedule table is empty.
 
     :return: True if both conditions are met (specified weekday + empty schedule), False otherwise,
         None in case of DB connection failure

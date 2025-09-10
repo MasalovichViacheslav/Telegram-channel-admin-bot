@@ -1,17 +1,12 @@
 import google.genai as genai
 from google.genai import errors
-from dotenv import load_dotenv
-import os
 from collections import defaultdict
 import time
 from json import loads, JSONDecodeError
 from summarizer.prompts import SNIPPET_ANALYSIS_PROMPT, ARTICLE_ANALYSIS_PROMPT
 from utils.logging_config import log_json
+from config import GEMINI_API_KEY
 
-
-# Load variable from .env file
-load_dotenv()
-gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 LOGGER = 'SUMMARIZING POST MATERIALS SUBPROCESS '
 
@@ -34,7 +29,7 @@ def summarize_material(materials: dict[str, list[str]|dict[str, str]]) -> dict[s
     materials_with_summaries = defaultdict(list)
 
     try:
-        client = genai.Client(api_key=gemini_api_key)
+        client = genai.Client(api_key=GEMINI_API_KEY)
 
         request_number = 0
 

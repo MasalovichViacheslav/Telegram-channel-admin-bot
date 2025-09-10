@@ -5,6 +5,7 @@ from post_storage.pg_storage_manager import get_post_from_current_batch
 from telegram_poster.admin_bot import post_to_telegram_channel
 import asyncio
 from utils.logging_config import log_json
+from config import TIME_PERIODS_IN_SECS, PROBABILITIES
 
 
 LOGGER = "POST PUBLICATION PROCESS"
@@ -40,10 +41,8 @@ def publish_post() -> None:
     """
     Publishes a post to Telegram channel with randomized timing to simulate human behavior.
 
-    The function implements a weighted delay system before publication:
-        - 0-10 minutes: 55% probability
-        - 10-20 minutes: 40% probability
-        - 20-29 minutes: 5% probability
+    The function implements a weighted delay system before publication using constants set
+    in 'config.py' module.
 
     Process flow:
         1. Applies weighted random delay to simulate natural posting behavior
@@ -58,9 +57,8 @@ def publish_post() -> None:
     """
     log_json(LOGGER, 'info', 'The process is started')
 
-    delays = [randint(0, 600), randint(600, 1200), randint(1200, 1740)]  # 0-10, 10-20, 20-29 minutes
-    weights = [55, 40, 5]
-    pause_in_secs = choices(delays, weights=weights)[0]
+    delays = [randint(*period) for period in TIME_PERIODS_IN_SECS]
+    pause_in_secs = choices(delays, weights=PROBABILITIES)[0]
     log_json(LOGGER, 'debug', 'The process is on pause', pause_in_secs=pause_in_secs,
              pause_in_min=int(round(pause_in_secs/60, 0)))
 
@@ -77,4 +75,3 @@ def publish_post() -> None:
         log_json(LOGGER, 'info', 'The process is ended')
     except Exception as e:
         log_json(LOGGER, 'error', 'The process is failed', reason='Unexpected error', error=f'{e}')
-

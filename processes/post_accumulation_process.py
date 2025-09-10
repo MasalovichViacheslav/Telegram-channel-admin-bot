@@ -1,5 +1,5 @@
-from datetime import datetime, time, timedelta
-from zoneinfo import ZoneInfo
+from datetime import datetime
+from config import TZ, MORNING_TIME_TO_CHECK_EMAIL, EVENING_TIME_TO_CHECK_EMAIL, DELTA
 from email_reader.email_handler import fetch_unseen_emails
 from email_reader.material_sources_extractor import email_parser
 from summarizer.redirect_url_resolver import retry_resolve_urls
@@ -9,9 +9,6 @@ from post_compiler.intro_selector_from_pg import get_article_intro_phrase, get_p
 from post_storage.pg_storage_manager import add_posts_to_next_batch
 from utils.logging_config import log_json
 
-TZ = ZoneInfo('Europe/Minsk')
-MORNING_TIME_TO_CHECK_EMAIL = time(10, 45, 0)
-EVENING_TIME_TO_CHECK_EMAIL = time(19, 45, 0)
 
 LOGGER = 'POST TEXTS ACCUMULATION PROCESS'
 
@@ -19,11 +16,8 @@ def is_time_to_add_post_texts() -> bool:
     """
     Checks if the current time falls within the designated email processing windows.
 
-    The function defines two daily time windows for email processing:
-        - Morning window: 10:45 - 11:15
-        - Evening window: 19:45 - 20:15
-
-    Uses Europe/Minsk timezone for time calculations.
+    The function defines two daily time windows for email processing using constants set
+    in 'config.py' module (MORNING_TIME_TO_CHECK_EMAIL, EVENING_TIME_TO_CHECK_EMAIL, DELTA).
 
     :return: True if current time is within either processing window, False otherwise
     """
@@ -34,10 +28,8 @@ def is_time_to_add_post_texts() -> bool:
     morning_time = datetime.combine(current_time.date(), MORNING_TIME_TO_CHECK_EMAIL, tzinfo=TZ)
     evening_time = datetime.combine(current_time.date(), EVENING_TIME_TO_CHECK_EMAIL, tzinfo=TZ)
 
-    delta = timedelta(minutes=30)
-
-    if (morning_time < current_time < morning_time + delta or
-            evening_time < current_time < evening_time + delta):
+    if (morning_time < current_time < morning_time + DELTA or
+            evening_time < current_time < evening_time + DELTA):
         log_json(LOGGER, 'info', 'It\'s time to add new posts')
         return True
     else:

@@ -1,18 +1,13 @@
-from dotenv import load_dotenv
-import os
 from telegram.error import TelegramError
 from telegram import Bot
 from utils.logging_config import log_json
+from config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_ID
 
 
-# Load variable from .env file
-load_dotenv()
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-TELEGRAM_CHANNEL_ID=os.getenv('TELEGRAM_CHANNEL_ID')
+LOGGER = 'MESSAGE SENDING SUBPROCESS'
 
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
-LOGGER = 'MESSAGE SENDING SUBPROCESS'
 
 async def post_to_telegram_channel(post_text: str) -> None:
     """

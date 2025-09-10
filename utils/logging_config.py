@@ -1,28 +1,24 @@
-import os
 import sys
 import logging
 import json
 from datetime import datetime
-from zoneinfo import ZoneInfo
+from config import LOG_LEVEL, TZ
 
-
-TZ = ZoneInfo('Europe/Minsk')
 
 def setup_logging() -> None:
     """
     Setup structured logging configuration for the entire application.
 
     Configures the root logger to output JSON-formatted messages to stdout.
-    The logging level can be controlled via LOG_LEVEL environment variable.
-
-    Environment Variables:
-      LOG_LEVEL (str): Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
-    Defaults to INFO if not set.
+    The logging level can be controlled via LOG_LEVEL constant set in
+    'config.py' module (defaults to INFO if set not correctly).
 
     :return: None
     """
-
-    logging_level = os.getenv('LOG_LEVEL', 'INFO').upper()
+    if LOG_LEVEL.upper() in ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'):
+        logging_level = LOG_LEVEL.upper()
+    else:
+        logging_level = 'INFO'
 
     logging.basicConfig(
         format='%(message)s',

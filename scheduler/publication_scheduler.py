@@ -1,17 +1,12 @@
-from datetime import datetime, timedelta, date, time, tzinfo
-from zoneinfo import ZoneInfo
+from datetime import datetime, timedelta, date
+from config import TZ, PUBLICATION_WINDOW_START, PUBLICATION_WINDOW_END, NIGHT_WINDOW_HOURS
 from db_connector.db_cursor_creator import get_db_cursor
 from utils.logging_config import log_json
 
 
-TZ = ZoneInfo('Europe/Minsk')
-
-PUBLICATION_WINDOW_START = time(7, 0, 0)
-PUBLICATION_WINDOW_END = time(22, 0 ,0)
-NIGHT_WINDOW_HOURS = (24 - PUBLICATION_WINDOW_END.hour + PUBLICATION_WINDOW_START.hour)
-
 LOGGER_C = 'SCHEDULE CALCULATION SUBPROCESS'
 LOGGER_U = 'SCHEDULE UPLOADING TO DB SUBPROCESS'
+
 
 def calculate_publication_schedule(posts_qty: int) -> list[datetime]:
     """
@@ -19,9 +14,10 @@ def calculate_publication_schedule(posts_qty: int) -> list[datetime]:
     of posts evenly within the daily publication window.
 
     The function respects the following constraints:
-        - The daily publication window is defined by the global variables PUBLICATION_WINDOW_START and
-          PUBLICATION_WINDOW_END in the timezone TZ.
-        - Night periods between publication windows are taken into account.
+        - The daily publication window is defined by the constants PUBLICATION_WINDOW_START and
+          PUBLICATION_WINDOW_END in the timezone TZ set in 'config.py' module.
+        - Night periods between publication windows are taken into account (NIGHT_WINDOW_HOURS constant
+          also set in 'config.py' module.
         - Posts are distributed evenly over the course of the week.
 
     :param posts_qty: The number of posts to schedule for the week. Must be >= 1.
