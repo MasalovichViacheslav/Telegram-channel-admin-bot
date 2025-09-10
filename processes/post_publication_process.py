@@ -62,7 +62,7 @@ def publish_post() -> None:
     weights = [55, 40, 5]
     pause_in_secs = choices(delays, weights=weights)[0]
     log_json(LOGGER, 'debug', 'The process is on pause', pause_in_secs=pause_in_secs,
-             pause_in_min=round(pause_in_secs/60, 0))
+             pause_in_min=int(round(pause_in_secs/60, 0)))
 
     sleep(pause_in_secs)
 

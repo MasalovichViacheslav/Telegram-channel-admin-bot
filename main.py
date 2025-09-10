@@ -1,7 +1,7 @@
-from processes.post_accumulator import is_time_to_add_post_texts, add_post_texts
-from processes.post_publication_scheduler import (is_time_to_schedule_next_week_publications,
-                                                  schedule_next_week_publications)
-from processes.post_publisher import is_time_to_publish_post, publish_post
+from processes.post_accumulation_process import is_time_to_add_post_texts, add_post_texts
+from processes.publication_scheduling_process import (is_time_to_schedule_next_week_publications,
+                                                      schedule_next_week_publications)
+from processes.post_publication_process import is_time_to_publish_post, publish_post
 from utils.logging_config import setup_logging, log_json, silence_third_party_logs
 
 
