@@ -64,6 +64,8 @@ def format_tags(tags_str: str) -> str:
 
     for tag in split_tags:
         words = re.split(r'[^a-zA-Z0-9]+', tag)
+        if '' in words:
+            continue
         camel_case_tag = ''.join(word[0].upper() + word[1:] for word in words)
         split_hashtags.append(f'#{camel_case_tag}')
 
