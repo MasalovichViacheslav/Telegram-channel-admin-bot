@@ -3,6 +3,8 @@ from processes.publication_scheduling_process import (is_time_to_schedule_next_w
                                                       schedule_next_week_publications)
 from processes.post_publication_process import is_time_to_publish_post, publish_post
 from utils.logging_config import setup_logging, log_json, silence_third_party_logs
+import logging
+import sys
 
 
 def run_post_accumulating() -> None:
@@ -27,9 +29,6 @@ def main() -> None:
       2. Schedules next week's publications if time has come
       3. Publishes post if publication time has come
     """
-    setup_logging()
-    silence_third_party_logs()
-
     log_json('APP', 'info', 'APP has started work')
     run_post_accumulating()
     run_post_publication_scheduling()
@@ -38,4 +37,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        setup_logging()
+        silence_third_party_logs()
+        main()
+        sys.exit(0)
+    except Exception as e:
+        logging.exception(f'Unexpected error:\n{e}')
+        sys.exit(1)
