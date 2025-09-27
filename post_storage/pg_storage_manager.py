@@ -11,8 +11,6 @@ def add_posts_to_next_batch(new_posts_list: list[str]) -> None:
     """
     Inserts a list of new posts into the database with `batch_type='next'`.
 
-    If the `posts` table does not exist, it will be created.
-
     :param new_posts_list: A list of post texts to be inserted.
     :return: None
     """
@@ -20,16 +18,6 @@ def add_posts_to_next_batch(new_posts_list: list[str]) -> None:
 
     with get_db_cursor() as cur:
         if cur:
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS posts (
-                id SERIAL PRIMARY KEY,
-                text TEXT NOT NULL,
-                batch_type TEXT NOT NULL,
-                publication_time TIMESTAMPTZ)
-                """
-            )
-
             if new_posts_list:
                 values_to_insert = [(new_post, 'next', None) for new_post in new_posts_list]
                 cur.executemany(
