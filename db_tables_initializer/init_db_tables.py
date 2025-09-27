@@ -1,6 +1,9 @@
 import json
 import os
 from db_connector.db_cursor_creator import get_db_cursor
+from utils.logging_config import log_json
+
+LOGGER = 'DB TABLES INITIALIZATION PROCESS'
 
 
 def fetch_intros_from_json_options() -> dict[str, list[str | dict[str, str]]] | None:
@@ -39,25 +42,33 @@ def fetch_intros(json_file_name: str) -> dict[str, list[str | dict[str, str]]] |
         with open(json_path, 'r+', encoding='UTF-8') as f:
             all_intro_phases = json.load(f)
     except json.JSONDecodeError as e:
-        print(f"JSON file decode failure: {e}")
+        log_json(LOGGER, 'info' ,'JSON file decode failure', reason=f'{e}')
 
     return all_intro_phases
 
 
-def create_intros_table() -> None:
+def initialize_db_table() -> None:
     """
-    Creates and populates the intro_phrases table in database.
+    Initializes the database by creating the necessary tables and populating 'intro_phrases'.
 
-    This function is designed for one-time database initialization. It:
-        - Creates the intro_phrases table with appropriate constraints
-        - Loads intro phrases from JSON files using fallback mechanism
-        - Populates the table with phrases categorized by type ('usual', 'funny', 'hot') and purpose ('article', 'pytricks')
-        - Handles special structure for 'hot' phrases with 'keep' flag for future movement
+    This function performs the following steps within a single database transaction:
+      1. **Creates tables** ('intro_phrases', 'posts', 'schedule') if they do not already exist.
+        - The 'intro_phrases' table includes constraints on 'intro_for' and 'type' fields.
+      2. **Fetches intro phrases** from JSON files using a fallback mechanism.
+      3. **Populates 'intro_phrases'** table by inserting the fetched data, mapping JSON structure to table columns:
+        - Determines 'intro_for' ('article' or 'pytricks') and 'type' ('usual', 'funny', 'hot').
+        - For 'hot' articles, it correctly handles the optional 'move_to' column based on the 'keep' flag in the JSON.
+
+    If the database connection fails, the process is terminated without attempting initialization.
 
     :return: None
+
     """
+    log_json(LOGGER, 'info', 'The process is started')
+
     with get_db_cursor() as cur:
         if cur:
+            log_json(LOGGER, 'info', '"intro_phrases" table creation is created')
             cur.execute(
                 """
                 CREATE TABLE IF NOT EXISTS intro_phrases(
@@ -90,4 +101,28 @@ def create_intros_table() -> None:
                     """,
                     values_to_insert
                 )
-            print('"intro_phrases" table is created and filled in')
+            log_json(LOGGER, 'info', '"intro_phrases" table is created and filled in')
+
+            log_json(LOGGER, 'info', '"posts" table creation is created')
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS posts (
+                id SERIAL PRIMARY KEY,
+                text TEXT NOT NULL,
+                batch_type TEXT NOT NULL,
+                publication_time TIMESTAMPTZ)
+                """
+            )
+            log_json(LOGGER, 'info', '"posts" table is created')
+
+            log_json(LOGGER, 'info', '"schedule" table creation is created')
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS schedule (
+                id SERIAL PRIMARY KEY,
+                publication_time TIMESTAMPTZ)
+                """
+            )
+            log_json(LOGGER, 'info', '"schedule" table is created')
+
+    log_json(LOGGER, 'info', 'The process is ended')
