@@ -54,8 +54,7 @@ def calculate_publication_schedule(posts_qty: int) -> list[datetime]:
 
 def upload_schedule_to_db(schedule: list[datetime]) -> None:
     """
-    Creates (if not exists) and populates the `schedule` table in the database
-    with the given list of publication times.
+    Populates the `schedule` table in the database with the given list of publication times.
 
     The function assumes that each datetime object in the input list is
     timezone-aware (`TIMESTAMPTZ` in PostgreSQL). All schedule times are
@@ -69,13 +68,6 @@ def upload_schedule_to_db(schedule: list[datetime]) -> None:
 
     with get_db_cursor() as cur:
         if cur:
-            cur.execute(
-                """
-                CREATE TABLE IF NOT EXISTS schedule (
-                id SERIAL PRIMARY KEY,
-                publication_time TIMESTAMPTZ)
-                """
-            )
             cur.executemany(
                 """
                 INSERT INTO schedule(publication_time)
