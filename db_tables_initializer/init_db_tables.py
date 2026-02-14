@@ -73,7 +73,7 @@ def initialize_db_table() -> None:
                 """
                 CREATE TABLE IF NOT EXISTS intro_phrases(
                 id SERIAL PRIMARY KEY,
-                intro_text TEXT NOT NULL,
+                intro_text TEXT NOT NULL UNIQUE,
                 intro_for TEXT NOT NULL CHECK (intro_for IN ('article', 'pytricks')),
                 type TEXT NOT NULL CHECK (type IN ('usual', 'funny', 'hot')),
                 move_to TEXT CHECK (move_to IN ('funny'))
@@ -98,6 +98,7 @@ def initialize_db_table() -> None:
                     """
                     INSERT INTO intro_phrases(intro_text, intro_for, type, move_to)
                     VALUES(%s, %s, %s, %s)
+                    ON CONFLICT (intro_text) DO NOTHING
                     """,
                     values_to_insert
                 )
@@ -126,3 +127,12 @@ def initialize_db_table() -> None:
             log_json(LOGGER, 'info', '"schedule" table is created')
 
     log_json(LOGGER, 'info', 'The process is ended')
+
+
+if __name__ == "__main__":
+    from utils.logging_config import setup_logging, silence_third_party_logs
+
+    setup_logging()
+    silence_third_party_logs()
+
+    initialize_db_table()
