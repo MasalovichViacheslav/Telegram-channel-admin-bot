@@ -33,7 +33,7 @@ def is_time_to_publish_post() -> bool:
             if query_result:
                 log_json(LOGGER, 'info', 'It\'s time to publish post')
                 return True
-    log_json(LOGGER, 'info', 'Time tp publish post has not come yet')
+    log_json(LOGGER, 'info', 'Time to publish post has not come yet')
     return False
 
 
