@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: telegram-bot:local
+    env_file:
+      - .env
+    environment:
+      - TZ=Europe/Minsk
