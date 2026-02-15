@@ -70,17 +70,47 @@ jobs:
 
       - name: Run bot
         env:
+          # Email settings
           EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+
+          # Gemini settings
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+          # Database settings
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}
+
+          # Telegram settings
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
-          TZ: Europe/Minsk
+
+          # Logging settings
+          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+
+          # Timezone
+          TZ: ${{ vars.TZ }}
+
+          # Post accumulation settings
+          MORNING_CHECK_HOUR: ${{ vars.MORNING_CHECK_HOUR }}
+          MORNING_CHECK_MINUTE: ${{ vars.MORNING_CHECK_MINUTE }}
+          EVENING_CHECK_HOUR: ${{ vars.EVENING_CHECK_HOUR }}
+          EVENING_CHECK_MINUTE: ${{ vars.EVENING_CHECK_MINUTE }}
+          EMAIL_CHECK_DELTA_MINUTES: ${{ vars.EMAIL_CHECK_DELTA_MINUTES }}
+
+          # Scheduling settings
+          SCHEDULE_CREATION_WEEKDAY: ${{ vars.SCHEDULE_CREATION_WEEKDAY }}
+
+          # Publication settings
+          PUB_WINDOW_START_HOUR: ${{ vars.PUB_WINDOW_START_HOUR }}
+          PUB_WINDOW_START_MINUTE: ${{ vars.PUB_WINDOW_START_MINUTE }}
+          PUB_WINDOW_END_HOUR: ${{ vars.PUB_WINDOW_END_HOUR }}
+          PUB_WINDOW_END_MINUTE: ${{ vars.PUB_WINDOW_END_MINUTE }}
+          TIME_PERIODS_IN_SECS: ${{ vars.TIME_PERIODS_IN_SECS }}
+          PROBABILITIES: ${{ vars.PROBABILITIES }}
         run: python main.py
 
       - name: Upload logs on failure
