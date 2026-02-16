@@ -38,8 +38,8 @@ def summarize_material(materials: dict[str, list[str]|dict[str, str]]) -> dict[s
 
             for index, (article_title, link_to_article) in enumerate(articles.items(), start=request_number + 1):
                 request_number = index
-                # bypassing the requests per minute limit (10 req/min)
-                if request_number % 10 == 1 and request_number != 1:
+                # bypassing the requests per minute limit (5 req/min)
+                if request_number % 5 == 1 and request_number != 1:
                     time.sleep(60)
 
                 response = client.models.generate_content(
