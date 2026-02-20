@@ -94,6 +94,11 @@ jobs:
           # Timezone
           TZ: ${{ vars.TZ }}
 
+          # URL resolver settings
+          URL_RESOLVER_TYPE: ${{ vars.URL_RESOLVER_TYPE }}
+          BROWSERLESS_API_KEY: ${{ secrets.BROWSERLESS_API_KEY }}
+          BROWSERLESS_ENDPOINT: ${{ vars.BROWSERLESS_ENDPOINT }}
+
           # Post accumulation settings
           MORNING_CHECK_HOUR: ${{ vars.MORNING_CHECK_HOUR }}
           MORNING_CHECK_MINUTE: ${{ vars.MORNING_CHECK_MINUTE }}
