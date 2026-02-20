@@ -28,6 +28,17 @@ TZ = ZoneInfo(os.getenv('TZ', 'Europe/Minsk'))
 
 
 # ==================================================
+# URL RESOLVER SETTINGS
+# ==================================================
+# Type of URL resolver: 'playwright' (local) or 'browserless' (cloud service)
+URL_RESOLVER_TYPE = os.getenv('URL_RESOLVER_TYPE', 'playwright')
+
+# Browserless.io API settings (only needed if URL_RESOLVER_TYPE='browserless')
+BROWSERLESS_API_KEY = os.getenv('BROWSERLESS_API_KEY')
+BROWSERLESS_ENDPOINT = os.getenv('BROWSERLESS_ENDPOINT', 'https://chrome.browserless.io')
+
+
+# ==================================================
 # POST TEXTS ACCUMULATION SETTINGS
 # ==================================================
 MORNING_TIME_TO_CHECK_EMAIL = time(
